@@ -1,0 +1,133 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { AdminBrand } from "./shared";
+export function AdminLogin() {
+  const [visible, setVisible] = useState(false);
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  return (
+    <main className="ad-login">
+      <header>
+        <Link href="/">← Return to website</Link>
+        <span>INTERNAL APPLICATION DESK</span>
+      </header>
+      <div className="ad-login-grid">
+        <section className="ad-login-card">
+          <AdminBrand />
+          <div className="ad-login-heading">
+            <p className="ad-kicker">YOUR WORKSPACE, CONNECTED</p>
+            <h1>
+              Welcome back<span>.</span>
+            </h1>
+            <p>Sign in to manage client applications.</p>
+          </div>
+          <form
+            noValidate
+            onSubmit={(e) => {
+              e.preventDefault();
+              setError(
+                !email.trim() || !password
+                  ? "Enter your email or username and password."
+                  : "Administrator credentials have not been configured yet. Use presentation access below to explore the interface.",
+              );
+            }}
+          >
+            <label htmlFor="admin-email">Email or username</label>
+            <input
+              id="admin-email"
+              autoComplete="username"
+              placeholder="Enter your email or username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-describedby={error ? "login-error" : undefined}
+            />
+            <label htmlFor="admin-password">Password</label>
+            <div className="ad-password">
+              <input
+                id="admin-password"
+                type={visible ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                aria-label={visible ? "Hide password" : "Show password"}
+                onClick={() => setVisible(!visible)}
+              >
+                {visible ? "Hide" : "Show"}
+              </button>
+            </div>
+            {error && (
+              <p id="login-error" className="ad-error" role="alert">
+                {error}
+              </p>
+            )}
+            <button className="ad-button primary ad-wide" type="submit">
+              Sign in <span>↗</span>
+            </button>
+          </form>
+          <div className="ad-access-note">
+            <span aria-hidden="true">◈</span>
+            <p>
+              Authorized administrator access.
+              <br />
+              Your workspace for application review.
+            </p>
+          </div>
+          <div className="ad-presentation">
+            <Link href="/admin">Open presentation workspace →</Link>
+            <small>
+              Fictional records only. No account credentials required.
+            </small>
+          </div>
+        </section>
+        <section
+          className="ad-login-art"
+          aria-label="FC Capital application review illustration"
+        >
+          <div className="ad-art-top">
+            <span className="ad-kicker">ONE CLEAR PERSPECTIVE</span>
+            <span>FC / 01</span>
+          </div>
+          <svg viewBox="0 0 400 400" fill="none" aria-hidden="true">
+            <circle cx="200" cy="200" r="172" />
+            <circle cx="200" cy="200" r="130" strokeDasharray="4 8" />
+            <circle cx="200" cy="200" r="90" />
+            <path d="M200 48 316 98v100c0 77-64 139-116 162-52-23-116-85-116-162V98Z" />
+            <path d="M200 77 290 116v80c0 59-47 110-90 132-43-22-90-73-90-132v-80Z" />
+            <path
+              className="ad-key"
+              d="M185 192a26 26 0 1 1 30 0v54l-15 14-15-14Z"
+            />
+            <path d="M200 15v370M15 200h370" />
+            <circle className="ad-node" cx="200" cy="48" r="5" />
+            <circle className="ad-node" cx="316" cy="98" r="5" />
+            <circle className="ad-node" cx="84" cy="198" r="5" />
+            <circle className="ad-node" cx="200" cy="360" r="5" />
+          </svg>
+          <div className="ad-art-copy">
+            <h2>Clarity in every decision.</h2>
+            <p>
+              Everything you need to review applications,
+              <br />
+              organize documents, and take the next step.
+            </p>
+          </div>
+          <footer>
+            <span>01 / REVIEW</span>
+            <span>02 / ORGANIZE</span>
+            <span>03 / CONNECT</span>
+          </footer>
+        </section>
+      </div>
+      <footer className="ad-login-footer">
+        © {new Date().getFullYear()} FC Capital{" "}
+        <span>A clearer perspective.</span>
+      </footer>
+    </main>
+  );
+}

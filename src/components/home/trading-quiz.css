@@ -1,0 +1,242 @@
+.tq-section {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 65px;
+  align-items: center;
+}
+.tq-intro h2 span {
+  color: var(--cyan);
+}
+.tq-intro > p:not(.eyebrow) {
+  margin-top: 24px;
+  line-height: 1.8;
+}
+.tq-intro > small {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+.tq-decoration {
+  display: flex;
+  margin: 40px 0 28px;
+  padding-left: 10px;
+}
+.tq-decoration span {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 76px;
+  border: 1px solid #315563;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #173540, #101b29);
+  font-size: 26px;
+  color: var(--cyan);
+  transform: rotate(-12deg);
+  box-shadow: 0 8px 20px #0003;
+}
+.tq-decoration span:nth-child(2) {
+  transform: translateY(-8px) rotate(3deg);
+  margin-left: -8px;
+}
+.tq-decoration span:nth-child(3) {
+  transform: rotate(14deg);
+  margin-left: -8px;
+}
+.tq-card {
+  padding: 34px;
+  border: 1px solid #304453;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at top right, #1d596023, transparent 65%),
+    var(--surface);
+  min-height: 520px;
+}
+.tq-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.tq-meta > span:first-child {
+  color: var(--cyan);
+}
+.tq-progress {
+  display: flex;
+  gap: 6px;
+  margin: 20px 0 28px;
+}
+.tq-progress span {
+  height: 3px;
+  flex: 1;
+  background: #293749;
+  border-radius: 3px;
+}
+.tq-progress span.active {
+  background: var(--cyan);
+}
+.tq-question {
+  font-size: 23px;
+  line-height: 1.4;
+  min-height: 95px;
+  margin-bottom: 24px;
+}
+.tq-options {
+  display: grid;
+  gap: 12px;
+}
+.tq-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0c1521;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s;
+  min-height: 62px;
+  width: 100%;
+}
+.tq-option:not([aria-disabled="true"]):hover {
+  border-color: var(--cyan);
+  transform: translateX(3px);
+}
+.tq-letter {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  height: 28px;
+  border: 1px solid #35485b;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.tq-option.correct {
+  background: #15392f;
+  border-color: #62cba1;
+}
+.tq-option.wrong {
+  background: #3d202c;
+  border-color: #ec8d9e;
+}
+.tq-option[aria-disabled="true"] {
+  cursor: default;
+}
+.tq-option strong {
+  font-size: 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: #9de7c5;
+}
+.tq-option.wrong strong {
+  color: #ffb4be;
+}
+.tq-feedback {
+  min-height: 44px;
+  padding-top: 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.tq-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.tq-actions > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.tq-result {
+  padding: 35px 0;
+}
+.tq-result h3 {
+  font-size: 30px;
+  max-width: 310px;
+}
+.tq-score {
+  font-size: 64px !important;
+  color: var(--cyan) !important;
+  margin: 32px 0 10px;
+}
+.tq-score span {
+  font-size: 18px;
+  color: var(--muted);
+}
+.tq-result .button {
+  margin-top: 35px;
+}
+.tq-question:focus,
+.tq-result h3:focus {
+  outline: none;
+}
+@media (max-width: 900px) {
+  .tq-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .tq-intro h2 br {
+    display: none;
+  }
+  .tq-decoration {
+    display: none;
+  }
+  .tq-intro > small {
+    display: block;
+    margin-top: 18px;
+  }
+  .tq-card {
+    min-height: 520px;
+  }
+}
+@media (max-width: 520px) {
+  .tq-card {
+    padding: 22px 18px;
+  }
+  .tq-question {
+    font-size: 20px;
+    min-height: 100px;
+  }
+  .tq-option {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+  .tq-option > span:nth-child(2) {
+    flex: 1;
+    min-width: 150px;
+  }
+  .tq-option strong {
+    width: 100%;
+    padding-left: 38px;
+  }
+  .tq-actions {
+    gap: 10px;
+  }
+  .tq-actions .button {
+    padding: 12px 14px;
+    font-size: 11px;
+  }
+  .tq-meta {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tq-option {
+    transition: none;
+  }
+  .tq-option:hover {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,5 @@
+.env*
+preview/
+node_modules/
+.next/
+*.tsbuildinfo

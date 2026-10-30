@@ -1,0 +1,32 @@
+{
+  "name": "fc-capital-interactive-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build --webpack",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.4.0",
+    "gsap": "latest",
+    "lenis": "latest",
+    "mongodb": "^7.7.0",
+    "next": "latest",
+    "next-auth": "^5.0.0-beta.32",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-hook-form": "latest",
+    "resend": "^6.35.0",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest"
+  }
+}
