@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { instruments } from "@/lib/home-content";
+import { HeroMarketReveal } from "./home/hero-market-reveal";
 import { TradingQuiz } from "./home/trading-quiz";
 import { AccountCard } from "./home/account-card";
 import Image from "next/image";
@@ -56,10 +57,26 @@ export default function Home() {
           <p className="eyebrow">
             <span className="status-dot" /> A CLEARER PERSPECTIVE ON TRADING
           </p>
-          <h1>
-            Your access to
-            <br />
-            <span>global markets.</span>
+          <h1
+            className="hero-heading"
+            aria-label="Your access to global markets."
+          >
+            <span className="hero-line" aria-hidden="true">
+              {["Your", "access", "to"].map((word, i) => (
+                <span key={word}>
+                  {i > 0 ? " " : ""}
+                  <span className="hero-word">{word}</span>
+                </span>
+              ))}
+            </span>
+            <span className="hero-line accent" aria-hidden="true">
+              {["global", "markets."].map((word, i) => (
+                <span key={word}>
+                  {i > 0 ? " " : ""}
+                  <span className="hero-word">{word}</span>
+                </span>
+              ))}
+            </span>
           </h1>
           <p className="lede">
             Explore the markets. Find your perspective.
@@ -85,50 +102,7 @@ export default function Home() {
             <span>Forex · Indices · Commodities</span>
           </div>
         </div>
-        <div className="orbital" aria-label="Illustration of global markets">
-          <div className="orbit-ring ring-one" />
-          <div className="orbit-ring ring-two" />
-          <div className="orbit-inner">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="globe">
-            <div className="globe-grid" />
-            <span>
-              FC<span>CONNECTED TO POSSIBILITY</span>
-            </span>
-          </div>
-          <div className="floating-card ticker-one">
-            <span className="ticker-icon">€</span>
-            <div>
-              <strong>EUR / USD</strong>
-              <small>FOREX</small>
-            </div>
-            <svg viewBox="0 0 90 36" aria-hidden="true">
-              <path d="M0 30L12 22L22 25L34 11L43 18L57 8L67 13L88 2" />
-            </svg>
-          </div>
-          <div className="floating-card ticker-two">
-            <span className="ticker-icon gold">Au</span>
-            <div>
-              <strong>GOLD</strong>
-              <small>COMMODITIES</small>
-            </div>
-            <span className="tiny-pill">EXPLORE ↗</span>
-          </div>
-          <div className="floating-card ticker-three">
-            <span className="status-dot" />
-            <div>
-              <strong>
-                One perspective.
-                <br />A world of possibilities.
-              </strong>
-              <small>FC CAPITAL</small>
-            </div>
-          </div>
-          <span className="orbital-caption">GLOBAL MARKETS / ILLUSTRATION</span>
-        </div>
+        <HeroMarketReveal />
       </section>
       <div
         className={"market-ribbon " + (ribbonPaused ? "paused" : "")}

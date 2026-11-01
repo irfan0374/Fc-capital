@@ -159,9 +159,6 @@ export default function MarketIntro({
           <span />
         </div>
       </div>
-      <button autoFocus className="intro-skip" onClick={finish}>
-        Skip intro <span aria-hidden="true">↗</span>
-      </button>
       <span className="intro-caption">MARKET MOTION / BRAND INTRODUCTION</span>
     </dialog>
   );

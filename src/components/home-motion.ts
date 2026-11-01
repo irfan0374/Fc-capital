@@ -23,7 +23,7 @@ export function useHomeMotion(
         const desktop = context.conditions.desktop;
         const scope = gsap.utils.selector(root.current);
         const scene = gsap.context(() => {
-          gsap.from(".hero-copy > *", {
+          gsap.from(".hero-copy > :not(h1)", {
             y: 22,
             opacity: 0,
             stagger: 0.09,
@@ -31,20 +31,14 @@ export function useHomeMotion(
             ease: "power2.out",
             clearProps: "all",
           });
-          gsap.to(".floating-card", {
-            y: desktop ? -12 : -10,
-            rotation: (index) => (index === 0 ? -3 : index === 1 ? 3 : -1),
-            stagger: 0.5,
-            duration: 3.4,
-            yoyo: true,
-            repeat: -1,
-            ease: "sine.inOut",
-          });
-          gsap.to(".orbit-inner", {
-            rotation: 360,
-            duration: 100,
-            repeat: -1,
-            ease: "none",
+          gsap.from(".hero-word", {
+            yPercent: 70,
+            rotation: 5,
+            opacity: 0,
+            stagger: 0.11,
+            duration: 0.85,
+            ease: "power3.out",
+            clearProps: "all",
           });
           {
             gsap.fromTo(
