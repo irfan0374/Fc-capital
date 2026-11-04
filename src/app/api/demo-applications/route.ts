@@ -1,17 +1,31 @@
 import { isAdmin, ADMIN } from "@/auth";
 import { Resend } from "resend";
 import { database } from "@/lib/server/database";
-import { empty, sample } from "@/lib/demo";
+import { empty, schemaFor, type Application } from "@/lib/demo";
 import { z } from "zod";
 export const runtime = "nodejs";
 const input = z
   .object({
     id: z.string().uuid(),
-    fictionalOnly: z.literal(true),
-    account: z.enum(["Standard", "Raw"]),
+    data: z.record(z.string(), z.unknown()),
     documents: z.array(z.string().uuid()).max(3).default([]),
   })
   .strict();
+function clean(raw: Record<string, unknown>) {
+  const data = { ...empty };
+  for (const key of Object.keys(empty) as (keyof Application)[]) {
+    const value = raw[key];
+    if (typeof value === "string")
+      Object.assign(data, { [key]: value.trim().slice(0, 500) });
+    else if (typeof value === "boolean" && typeof empty[key] === "boolean")
+      Object.assign(data, { [key]: value });
+  }
+  data.code = "";
+  for (let step = 0; step < 8; step++)
+    if (step !== 1 && !schemaFor(step, data).safeParse(data).success)
+      return null;
+  return data;
+}
 const reply = (body: object, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 export async function POST(request: Request) {
@@ -36,7 +50,7 @@ export async function POST(request: Request) {
     const { done, value } = await reader.read();
     if (done) break;
     bytes += value.length;
-    if (bytes > 2048) {
+    if (bytes > 16384) {
       await reader.cancel();
       return reply({ error: "Request too large." }, 413);
     }
@@ -48,12 +62,14 @@ export async function POST(request: Request) {
   } catch {
     return reply({ error: "Invalid JSON." }, 400);
   }
-  if (!parsed.success)
+  const data = parsed.success ? clean(parsed.data.data) : null;
+  if (!parsed.success || !data)
     return reply(
-      { error: "Only fictional demo submissions are accepted." },
+      { error: "Some application details are missing or invalid." },
       400,
     );
-  const { id, account, documents } = parsed.data;
+  const { id, documents } = parsed.data;
+  const account = data.account;
   if (documents.length && !(await isAdmin()))
     return reply(
       { error: "Admin sign-in required to attach test documents." },
@@ -74,7 +90,10 @@ export async function POST(request: Request) {
       created: Date;
       account: string;
       emailStatus: string;
-      data: object;
+      data: Application;
+      status: string;
+      notes: string[];
+      history: string[];
       emailId?: string;
       documentIds?: string[];
     }>("demo_applications");
@@ -86,24 +105,20 @@ export async function POST(request: Request) {
         account: existing.account,
         emailStatus: existing.emailStatus,
       });
-    const limits = db.collection<{ _id: string }>("demo_submission_limits");
-    let admitted = false;
     const day = new Date().toISOString().slice(0, 10);
-    for (let i = 0; i < 10; i++) {
-      try {
-        await limits.insertOne({ _id: day + ":" + i });
-        admitted = true;
-        break;
-      } catch (e) {
-        if ((e as { code?: number }).code !== 11000) throw e;
-      }
-    }
-    if (!admitted)
+    const limit = await db
+      .collection<{ _id: string; count: number }>("submission_limits")
+      .findOneAndUpdate(
+        { _id: day },
+        { $inc: { count: 1 } },
+        { upsert: true, returnDocument: "after" },
+      );
+    if ((limit?.count ?? 0) > 200)
       return reply(
-        { error: "Daily demo limit reached. Please try tomorrow." },
+        { error: "Too many applications today. Please try again tomorrow." },
         429,
       );
-    const reference = "TEST-" + id.toUpperCase();
+    const reference = "FC-" + id.slice(0, 8).toUpperCase();
     const created = new Date();
     try {
       await apps.insertOne({
@@ -113,15 +128,10 @@ export async function POST(request: Request) {
         account,
         emailStatus: "pending",
         documentIds: documents,
-        data: {
-          ...empty,
-          ...sample,
-          account,
-          code: "",
-          testOnly: true,
-          verification: "simulated",
-          documents: "simulated",
-        },
+        status: "Pending review",
+        notes: [],
+        history: ["Application received"],
+        data,
       });
     } catch (e) {
       if ((e as { code?: number }).code !== 11000) throw e;
@@ -133,12 +143,12 @@ export async function POST(request: Request) {
       try {
         const result = await new Resend(process.env.RESEND_API_KEY).emails.send(
           {
-            from: "FC Capital Demo <onboarding@resend.dev>",
-            to: ["irfanfinisso@gmail.com"],
-            subject: "[TEST ONLY] FC Capital application received",
-            text: `Fictional application saved. Reference: ${reference}. Applicant: Alex Morgan (fictional). Account: ${account}. No real client application or verification. Review test data at https://fc-capital.vercel.app/admin/review (admin sign-in required). CRM is separate. No email is sent to the fictional applicant.`,
+            from: "FC Capital <onboarding@resend.dev>",
+            to: [ADMIN],
+            subject: `New application · ${data.firstName} ${data.lastName} · ${reference}`,
+            text: `New application received.\n\nReference: ${reference}\nName: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nCountry: ${data.country}\nAccount: ${account}\n\nReview it at https://fc-capital.vercel.app/admin (admin sign-in required).`,
           },
-          { idempotencyKey: "fc-demo/" + id },
+          { idempotencyKey: "fc-app/" + id },
         );
         emailStatus = result.error ? "failed" : "accepted";
         emailId = result.data?.id;
@@ -154,8 +164,7 @@ export async function POST(request: Request) {
   } catch {
     return reply(
       {
-        error:
-          "Unable to confirm saving the test application. Please retry with the same submission.",
+        error: "We could not save your application. Please try again.",
       },
       503,
     );

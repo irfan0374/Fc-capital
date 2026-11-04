@@ -1,10 +1,9 @@
+import { sample, type Application } from "./demo";
 export type ReviewStatus =
-  | "Pending review"
-  | "Needs information"
-  | "Approved"
-  | "Rejected";
+  "Pending review" | "Needs information" | "Approved" | "Rejected";
 export type ReviewApplication = {
   id: string;
+  reference: string;
   name: string;
   email: string;
   country: string;
@@ -13,6 +12,9 @@ export type ReviewApplication = {
   status: ReviewStatus;
   notes: string[];
   history: string[];
+  demo: boolean;
+  data: Partial<Application>;
+  documents: { id: string; kind: string }[];
 };
 export const reviewStatuses: ReviewStatus[] = [
   "Pending review",
@@ -20,7 +22,7 @@ export const reviewStatuses: ReviewStatus[] = [
   "Approved",
   "Rejected",
 ];
-export const applications: ReviewApplication[] = [
+const demoRows = [
   {
     id: "FC-APP-9042",
     name: "Alexander Vance",
@@ -65,26 +67,95 @@ export const applications: ReviewApplication[] = [
     notes: [],
     history: ["Application received"],
   },
+];
+export const demoApplications: ReviewApplication[] = demoRows.map((r) => {
+  const [firstName, lastName] = r.name.split(" ");
+  return {
+    ...r,
+    reference: r.id,
+    status: r.status as ReviewStatus,
+    demo: true,
+    documents: [],
+    data: {
+      ...sample,
+      firstName,
+      lastName,
+      email: r.email,
+      country: r.country,
+      taxCountry: r.country,
+      account: r.account,
+      currency: "USD",
+    },
+  };
+});
+export const detailGroups: {
+  title: string;
+  fields: [keyof Application, string][];
+}[] = [
   {
-    id: "FC-APP-8910",
-    name: "Karan Patel",
-    email: "karan.patel@example.com",
-    country: "India",
-    account: "Standard",
-    submitted: "2026-10-25",
-    status: "Needs information",
-    notes: [],
-    history: ["Application received"],
+    title: "Contact & personal information",
+    fields: [
+      ["email", "Email"],
+      ["phone", "Phone"],
+      ["country", "Country of residence"],
+      ["dob", "Date of birth"],
+      ["nationality", "Nationality"],
+      ["birthplace", "Place of birth"],
+      ["address", "Address"],
+      ["city", "City"],
+      ["postal", "Postal code"],
+      ["contactConsent", "Contact consent"],
+      ["marketing", "Marketing emails"],
+    ],
   },
   {
-    id: "FC-APP-8845",
-    name: "David Morgan",
-    email: "david.morgan@example.com",
-    country: "United Arab Emirates",
-    account: "Standard",
-    submitted: "2026-10-24",
-    status: "Rejected",
-    notes: [],
-    history: ["Application received", "Review completed"],
+    title: "Tax & declarations",
+    fields: [
+      ["taxCountry", "Tax residency"],
+      ["tin", "Tax identification number"],
+      ["noTin", "No TIN"],
+      ["tinReason", "Reason for no TIN"],
+      ["usPerson", "US person"],
+      ["pep", "Politically exposed person"],
+    ],
+  },
+  {
+    title: "Financial profile",
+    fields: [
+      ["employment", "Employment"],
+      ["occupation", "Occupation"],
+      ["income", "Annual income"],
+      ["netWorth", "Net worth"],
+      ["liquidAssets", "Liquid assets"],
+      ["deposit", "Expected deposit"],
+      ["source", "Source of funds"],
+      ["sourceOther", "Other source"],
+      ["purpose", "Purpose of account"],
+    ],
+  },
+  {
+    title: "Trading experience & knowledge check",
+    fields: [
+      ["experience", "Trading experience"],
+      ["frequency", "Trading frequency"],
+      ["tradeSize", "Typical trade size"],
+      ["qualification", "Relevant qualification"],
+      ["quiz0", "Leverage amplifies"],
+      ["quiz1", "Margin below required level"],
+      ["quiz2", "Stop-loss during a gap"],
+      ["quiz3", "Spread"],
+      ["quiz4", "Available margin"],
+    ],
+  },
+  {
+    title: "Account & confirmations",
+    fields: [
+      ["account", "Account"],
+      ["currency", "Base currency"],
+      ["documentType", "Identity document type"],
+      ["accuracy", "Confirmed accuracy"],
+      ["risk", "Accepted risk warning"],
+      ["terms", "Accepted terms"],
+    ],
   },
 ];

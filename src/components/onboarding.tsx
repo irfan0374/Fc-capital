@@ -209,8 +209,7 @@ export default function Onboarding() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id,
-          fictionalOnly: true,
-          account: getValues("account"),
+          data: { ...getValues(), code: "" },
           documents: Object.values(uploadedDocs),
         }),
       });
@@ -221,8 +220,8 @@ export default function Onboarding() {
         "fc-capital-receipt",
         JSON.stringify({
           ...result,
-          firstName: "Alex",
-          email: "alex.morgan@example.com",
+          firstName: getValues("firstName").trim(),
+          email: getValues("email").trim(),
         }),
       );
       sessionStorage.removeItem(STORAGE);

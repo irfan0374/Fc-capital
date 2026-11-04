@@ -1,12 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { login, loginWithGoogle } from "@/app/admin/actions";
 import { AdminBrand } from "./shared";
-export function AdminLogin() {
+export function AdminLogin({ google }: { google: boolean }) {
   const [visible, setVisible] = useState(false);
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [error, action, pending] = useActionState(login, "");
   return (
     <main className="ad-login">
       <header>
@@ -23,35 +22,26 @@ export function AdminLogin() {
             </h1>
             <p>Sign in to manage client applications.</p>
           </div>
-          <form
-            noValidate
-            onSubmit={(e) => {
-              e.preventDefault();
-              setError(
-                !email.trim() || !password
-                  ? "Enter your email or username and password."
-                  : "Administrator credentials have not been configured yet. Use presentation access below to explore the interface.",
-              );
-            }}
-          >
-            <label htmlFor="admin-email">Email or username</label>
+          <form action={action}>
+            <label htmlFor="admin-email">Admin email</label>
             <input
               id="admin-email"
+              name="email"
+              type="email"
+              required
               autoComplete="username"
-              placeholder="Enter your email or username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your admin email"
               aria-describedby={error ? "login-error" : undefined}
             />
             <label htmlFor="admin-password">Password</label>
             <div className="ad-password">
               <input
                 id="admin-password"
+                name="password"
+                required
                 type={visible ? "text" : "password"}
                 autoComplete="current-password"
                 placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
@@ -66,10 +56,21 @@ export function AdminLogin() {
                 {error}
               </p>
             )}
-            <button className="ad-button primary ad-wide" type="submit">
-              Sign in <span>↗</span>
+            <button
+              className="ad-button primary ad-wide"
+              type="submit"
+              disabled={pending}
+            >
+              {pending ? "Signing in…" : "Sign in"} <span>↗</span>
             </button>
           </form>
+          {google && (
+            <form action={loginWithGoogle}>
+              <button className="ad-button ad-wide" type="submit">
+                Sign in with Google
+              </button>
+            </form>
+          )}
           <div className="ad-access-note">
             <span aria-hidden="true">◈</span>
             <p>
@@ -77,12 +78,6 @@ export function AdminLogin() {
               <br />
               Your workspace for application review.
             </p>
-          </div>
-          <div className="ad-presentation">
-            <Link href="/admin">Open presentation workspace →</Link>
-            <small>
-              Fictional records only. No account credentials required.
-            </small>
           </div>
         </section>
         <section

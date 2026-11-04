@@ -1,15 +1,24 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { logout, updateApplication } from "@/app/admin/actions";
 import {
-  applications,
+  detailGroups,
   reviewStatuses,
   type ReviewApplication,
   type ReviewStatus,
 } from "@/lib/admin-workspace";
 import { AdminBrand, StatusBadge, MetricCard, DetailGroup } from "./shared";
-export function AdminDashboard() {
-  const [rows, setRows] = useState(applications);
+const show = (v: unknown) =>
+  v === true ? "Yes" : v === false ? "No" : String(v ?? "").trim() || "—";
+export function AdminDashboard({
+  initial,
+  error,
+}: {
+  initial: ReviewApplication[];
+  error: string;
+}) {
+  const [rows, setRows] = useState(initial);
   const [section, setSection] = useState("Overview");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
@@ -18,7 +27,7 @@ export function AdminDashboard() {
   const [selected, setSelected] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ReviewStatus | null>(null);
   const [note, setNote] = useState("");
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(error);
   const [mobile, setMobile] = useState(false);
   const [preview, setPreview] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
@@ -27,7 +36,7 @@ export function AdminDashboard() {
     (r) =>
       (status === "All" || r.status === status) &&
       (account === "All" || r.account === account) &&
-      [r.name, r.email, r.id].some((v) =>
+      [r.name, r.email, r.reference].some((v) =>
         v.toLowerCase().includes(search.toLowerCase()),
       ),
   );
@@ -50,30 +59,57 @@ export function AdminDashboard() {
     setPreview("");
     setNote("");
   }
-  function update() {
+  async function save(
+    target: ReviewApplication,
+    change: { status?: ReviewStatus; note?: string },
+    next: ReviewApplication,
+  ) {
+    const before = rows;
+    setRows(rows.map((r) => (r.id === target.id ? next : r)));
+    if (target.demo) return true;
+    try {
+      await updateApplication(target.id, change);
+      return true;
+    } catch {
+      setRows(before);
+      setNotice("Could not save the change. Please try again.");
+      return false;
+    }
+  }
+  async function update() {
     if (!app || !confirm) return;
-    setRows(
-      rows.map((r) =>
-        r.id === app.id
-          ? {
-              ...r,
-              status: confirm,
-              history: [
-                ...r.history,
-                "Administrator changed status to " + confirm,
-              ],
-            }
-          : r,
-      ),
-    );
-    setNotice("Presentation record updated. No email was sent.");
+    const status = confirm;
     setConfirm(null);
+    const ok = await save(
+      app,
+      { status },
+      {
+        ...app,
+        status,
+        history: [...app.history, "Administrator changed status to " + status],
+      },
+    );
+    if (ok)
+      setNotice(
+        app.demo
+          ? "Demo record updated on this page only. No email was sent."
+          : "Application status saved. No email was sent.",
+      );
   }
   function exportRows() {
     const text = [
-      "Reference,Name,Email,Country,Account,Status",
+      "Reference,Name,Email,Phone,Country,Account,Submitted,Status",
       ...filtered.map((r) =>
-        [r.id, r.name, r.email, r.country, r.account, r.status]
+        [
+          r.reference,
+          r.name,
+          r.email,
+          show(r.data.phone),
+          r.country,
+          r.account,
+          r.submitted,
+          r.status,
+        ]
           .map((v) => '"' + v.replaceAll('"', '""') + '"')
           .join(","),
       ),
@@ -84,7 +120,7 @@ export function AdminDashboard() {
     a.download = "fc-capital-applications.csv";
     a.click();
     URL.revokeObjectURL(url);
-    setNotice("Filtered presentation records exported.");
+    setNotice("Filtered applications exported.");
   }
   return (
     <div className="ad-workspace">
@@ -121,7 +157,9 @@ export function AdminDashboard() {
               Administrator<small>Application review</small>
             </div>
           </div>
-          <Link href="/admin/login">↪ Sign out</Link>
+          <form action={logout}>
+            <button type="submit">↪ Sign out</button>
+          </form>
         </div>
       </aside>
       {mobile && (
@@ -146,7 +184,10 @@ export function AdminDashboard() {
             </span>
           </div>
           <div className="ad-top-right">
-            <span className="ad-session">Fictional presentation data</span>
+            <span className="ad-session">
+              {rows.filter((r) => !r.demo).length} client ·{" "}
+              {rows.filter((r) => r.demo).length} demo records
+            </span>
             <span className="ad-avatar">AD</span>
           </div>
         </header>
@@ -163,7 +204,7 @@ export function AdminDashboard() {
                   : section === "Applications"
                     ? "Review, organize, and manage incoming applications."
                     : section === "Documents"
-                      ? "Sample documents associated with presentation applications."
+                      ? "Documents attached to applications."
                       : "Your workspace configuration."}
               </p>
             </div>
@@ -190,19 +231,17 @@ export function AdminDashboard() {
               <dl>
                 <dt>Administrator</dt>
                 <dd>irfanfinisso@gmail.com</dd>
-                <dt>Credential sign-in</dt>
-                <dd>Awaiting administrator setup</dd>
-                <dt>Presentation records</dt>
-                <dd>Changes are held in this page and reset on reload.</dd>
+                <dt>Sign-in</dt>
+                <dd>Admin email and password</dd>
+                <dt>Client applications</dt>
+                <dd>
+                  Saved in the database. Status changes and notes are kept.
+                </dd>
+                <dt>Demo records</dt>
+                <dd>4 sample records. Changes reset on reload.</dd>
                 <dt>CRM access</dt>
                 <dd>Managed separately after review.</dd>
               </dl>
-              <Link className="ad-button" href="/admin/login">
-                View login screen →
-              </Link>
-              <Link className="ad-button" href="/admin/review">
-                Protected application review →
-              </Link>
             </section>
           ) : (
             <>
@@ -212,7 +251,7 @@ export function AdminDashboard() {
                     label="Total applications"
                     value={rows.length}
                     symbol="▤"
-                    detail="All presentation applications"
+                    detail="Client and demo applications"
                   />
                   {(
                     ["Pending review", "Needs information", "Approved"] as const
@@ -251,7 +290,7 @@ export function AdminDashboard() {
                   </div>
                   <span className="ad-panel-label">
                     {section === "Documents"
-                      ? "SAMPLE FILES"
+                      ? "FILES"
                       : "APPLICATION MANAGEMENT"}
                   </span>
                 </div>
@@ -324,7 +363,12 @@ export function AdminDashboard() {
                       >
                         <span>▤</span>
                         <strong>{r.name}</strong>
-                        <small>{r.id} · 2 sample documents</small>
+                        <small>
+                          {r.reference} ·{" "}
+                          {r.demo
+                            ? "2 sample documents"
+                            : r.documents.length + " documents"}
+                        </small>
                         <b>View documents ↗</b>
                       </button>
                     ))}
@@ -353,7 +397,10 @@ export function AdminDashboard() {
                         <tbody>
                           {shown.map((r) => (
                             <tr key={r.id}>
-                              <td className="ad-reference">{r.id}</td>
+                              <td className="ad-reference">
+                                {r.reference}
+                                {r.demo && <small>Demo</small>}
+                              </td>
                               <td>
                                 <strong>{r.name}</strong>
                                 <small>{r.email}</small>
@@ -388,7 +435,10 @@ export function AdminDashboard() {
                           onClick={() => open(r.id)}
                         >
                           <div>
-                            <span className="ad-reference">{r.id}</span>
+                            <span className="ad-reference">
+                              {r.reference}
+                              {r.demo && " · Demo"}
+                            </span>
                             <StatusBadge status={r.status} />
                           </div>
                           <strong>{r.name}</strong>
@@ -452,7 +502,9 @@ export function AdminDashboard() {
           <div className="ad-drawer-inner">
             <header>
               <div>
-                <p className="ad-kicker">{app.id} / APPLICATION DETAILS</p>
+                <p className="ad-kicker">
+                  {app.reference} / APPLICATION DETAILS
+                </p>
                 <h2>{app.name}</h2>
                 <StatusBadge status={app.status} />
               </div>
@@ -466,55 +518,55 @@ export function AdminDashboard() {
             </header>
             <div className="ad-drawer-body">
               <p className="ad-fictional-note">
-                Fictional presentation record · Submitted {app.submitted}
+                {app.demo ? "Demo record" : "Client application"} · Submitted{" "}
+                {app.submitted}
               </p>
-              <DetailGroup title="01 / Contact & personal information">
-                <dl>
-                  <dt>Email</dt>
-                  <dd>{app.email}</dd>
-                  <dt>Country of residence</dt>
-                  <dd>{app.country}</dd>
-                  <dt>Date of birth</dt>
-                  <dd>15 June 1990</dd>
-                  <dt>Tax residency</dt>
-                  <dd>{app.country}</dd>
-                </dl>
-              </DetailGroup>
-              <DetailGroup title="02 / Financial profile & experience">
-                <dl>
-                  <dt>Employment</dt>
-                  <dd>Employed</dd>
-                  <dt>Annual income</dt>
-                  <dd>$25,000–$75,000</dd>
-                  <dt>Source of funds</dt>
-                  <dd>Employment income</dd>
-                  <dt>Trading experience</dt>
-                  <dd>1–3 years</dd>
-                </dl>
-              </DetailGroup>
-              <DetailGroup title="03 / Account preferences">
-                <dl>
-                  <dt>Account</dt>
-                  <dd>{app.account}</dd>
-                  <dt>Platform</dt>
-                  <dd>MetaTrader 5</dd>
-                  <dt>Base currency</dt>
-                  <dd>USD</dd>
-                </dl>
-              </DetailGroup>
-              <DetailGroup title="04 / Documents">
-                <div className="ad-doc-buttons">
-                  {["Identity document", "Proof of address"].map((t) => (
-                    <button
-                      className="ad-button"
-                      key={t}
-                      onClick={() => setPreview(preview === t ? "" : t)}
-                    >
-                      ▤ {t} ↗
-                    </button>
-                  ))}
-                </div>
-                {preview && (
+              {detailGroups.map((g, i) => (
+                <DetailGroup
+                  key={g.title}
+                  title={String(i + 1).padStart(2, "0") + " / " + g.title}
+                >
+                  <dl>
+                    {g.fields.map(([key, label]) => (
+                      <div key={key} style={{ display: "contents" }}>
+                        <dt>{label}</dt>
+                        <dd>{show(app.data[key])}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </DetailGroup>
+              ))}
+              <DetailGroup title="06 / Documents">
+                {!app.demo && !app.documents.length && (
+                  <p>No documents uploaded with this application.</p>
+                )}
+                {!app.demo && (
+                  <div className="ad-doc-buttons">
+                    {app.documents.map((d) => (
+                      <a
+                        className="ad-button"
+                        key={d.id}
+                        href={"/api/documents/" + d.id}
+                      >
+                        ▤ {d.kind} ↓
+                      </a>
+                    ))}
+                  </div>
+                )}
+                {app.demo && (
+                  <div className="ad-doc-buttons">
+                    {["Identity document", "Proof of address"].map((t) => (
+                      <button
+                        className="ad-button"
+                        key={t}
+                        onClick={() => setPreview(preview === t ? "" : t)}
+                      >
+                        ▤ {t} ↗
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {app.demo && preview && (
                   <div className="ad-file-preview">
                     <p>SAMPLE / NOT A VALID DOCUMENT</p>
                     <h3>{preview}</h3>
@@ -526,7 +578,7 @@ export function AdminDashboard() {
                   </div>
                 )}
               </DetailGroup>
-              <DetailGroup title="05 / Internal notes">
+              <DetailGroup title="07 / Internal notes">
                 <label htmlFor="review-note">Add a review note</label>
                 <textarea
                   id="review-note"
@@ -539,15 +591,14 @@ export function AdminDashboard() {
                 <button
                   className="ad-button"
                   disabled={!note.trim()}
-                  onClick={() => {
-                    setRows(
-                      rows.map((r) =>
-                        r.id === app.id
-                          ? { ...r, notes: [...r.notes, note.trim()] }
-                          : r,
-                      ),
-                    );
+                  onClick={async () => {
+                    const text = note.trim();
                     setNote("");
+                    await save(
+                      app,
+                      { note: text },
+                      { ...app, notes: [...app.notes, text] },
+                    );
                   }}
                 >
                   Save note
@@ -559,7 +610,7 @@ export function AdminDashboard() {
                   </p>
                 ))}
               </DetailGroup>
-              <DetailGroup title="06 / Review history">
+              <DetailGroup title="08 / Review history">
                 <ol className="ad-history">
                   {app.history.map((h, i) => (
                     <li key={i}>{h}</li>
@@ -572,8 +623,10 @@ export function AdminDashboard() {
                 <div className="ad-confirm">
                   <h3>Confirm {confirm.toLowerCase()}?</h3>
                   <p>
-                    This updates the fictional record. No email or CRM account
-                    will be created.
+                    {app.demo
+                      ? "This updates the demo record on this page only."
+                      : "This saves the new status."}{" "}
+                    No email or CRM account will be created.
                   </p>
                   <button
                     className="ad-button"
