@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 export function AdminBrand() {
   return (
-    <a className="ad-brand" href="/">
-      <span className="ad-mark">FC</span>
+    <a className="desk-brand" href="/">
+      <span className="desk-mark">FC</span>
       <span>
         FC CAPITAL<small>APPLICATION DESK</small>
       </span>
@@ -13,7 +13,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={
-        "ad-status " +
+        "desk-status " +
         ({
           "Pending review": "pending",
           "Needs information": "information",
@@ -39,7 +39,7 @@ export function MetricCard({
   detail: string;
 }) {
   return (
-    <article className="ad-metric">
+    <article className="desk-metric">
       <div>
         <span>{label}</span>
         <b aria-hidden="true">{symbol}</b>
@@ -57,7 +57,7 @@ export function DetailGroup({
   children: ReactNode;
 }) {
   return (
-    <section className="ad-detail-group">
+    <section className="desk-detail-group">
       <h3>{title}</h3>
       {children}
     </section>

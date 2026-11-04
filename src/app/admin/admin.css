@@ -73,20 +73,20 @@
 .admin-ui small {
   color: var(--ad-muted);
 }
-.ad-brand {
+.desk-brand {
   display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 700;
   letter-spacing: 2px;
 }
-.ad-brand small {
+.desk-brand small {
   display: block;
   font-size: 9px;
   letter-spacing: 2px;
   margin-top: 6px;
 }
-.ad-mark {
+.desk-mark {
   display: grid;
   place-items: center;
   width: 42px;
@@ -98,14 +98,14 @@
   letter-spacing: -2px;
   font-size: 20px;
 }
-.ad-kicker {
+.desk-kicker {
   font-size: 10px;
   letter-spacing: 2px;
   color: var(--ad-cyan);
   font-weight: 600;
   margin-bottom: 16px !important;
 }
-.ad-button {
+.desk-button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -121,40 +121,40 @@
     background 0.2s,
     border-color 0.2s;
 }
-.ad-button:hover {
+.desk-button:hover {
   border-color: #61758b;
   background: #1b293a;
 }
-.ad-button.primary {
+.desk-button.primary {
   background: var(--ad-cyan);
   border-color: var(--ad-cyan);
   color: #06141b;
 }
-.ad-button.primary:hover {
+.desk-button.primary:hover {
   background: #8be7f2;
 }
-.ad-button.danger {
+.desk-button.danger {
   color: #ff999b;
   border-color: #64333c;
   background: #301923;
 }
-.ad-wide {
+.desk-wide {
   width: 100%;
 }
-.ad-login {
+.desk-login {
   max-width: 1320px;
   margin: auto;
   padding: 32px 48px;
 }
-.ad-login > header,
-.ad-login > footer {
+.desk-login > header,
+.desk-login > footer {
   display: flex;
   justify-content: space-between;
   color: var(--ad-muted);
   font-size: 11px;
   letter-spacing: 1px;
 }
-.ad-login-grid {
+.desk-login-grid {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
   min-height: 660px;
@@ -163,41 +163,41 @@
   border-radius: 20px;
   overflow: hidden;
 }
-.ad-login-card {
+.desk-login-card {
   padding: 52px 48px;
   background: #0e1622;
 }
-.ad-login-heading {
+.desk-login-heading {
   margin: 54px 0 30px;
 }
-.ad-login-heading h1 {
+.desk-login-heading h1 {
   font-size: 42px;
   margin-bottom: 14px;
 }
-.ad-login-heading h1 span {
+.desk-login-heading h1 span {
   color: var(--ad-cyan);
 }
-.ad-login-heading > p:last-child {
+.desk-login-heading > p:last-child {
   line-height: 1.7;
   color: var(--ad-muted);
 }
-.ad-login form label {
+.desk-login form label {
   display: block;
   font-size: 12px;
   margin: 20px 0 9px;
 }
-.ad-login form > input {
+.desk-login form > input {
   width: 100%;
 }
-.ad-password {
+.desk-password {
   position: relative;
   margin-bottom: 24px;
 }
-.ad-password input {
+.desk-password input {
   width: 100%;
   padding-right: 70px;
 }
-.ad-password button {
+.desk-password button {
   position: absolute;
   right: 13px;
   top: 0;
@@ -207,7 +207,7 @@
   color: var(--ad-cyan);
   font-size: 12px;
 }
-.ad-error {
+.desk-error {
   padding: 12px;
   background: #431e2b;
   color: #ffb3b9;
@@ -216,29 +216,29 @@
   margin-bottom: 16px !important;
   border-radius: 8px;
 }
-.ad-access-note {
+.desk-access-note {
   font-size: 11px;
   color: var(--ad-muted);
   text-align: center;
   line-height: 1.6;
   margin-top: 20px !important;
 }
-.ad-presentation {
+.desk-presentation {
   margin-top: 30px;
   border-top: 1px solid var(--ad-line);
   padding-top: 22px;
   text-align: center;
 }
-.ad-presentation a {
+.desk-presentation a {
   color: var(--ad-cyan);
   font-size: 12px;
 }
-.ad-presentation small {
+.desk-presentation small {
   display: block;
   font-size: 10px;
   margin-top: 9px;
 }
-.ad-login-art {
+.desk-login-art {
   position: relative;
   overflow: hidden;
   display: flex;
@@ -252,15 +252,15 @@
     #0c1520 75%
   );
 }
-.ad-login-art > div:first-child,
-.ad-login-art > footer {
+.desk-login-art > div:first-child,
+.desk-login-art > footer {
   display: flex;
   justify-content: space-between;
   font-size: 9px;
   letter-spacing: 2px;
   color: #8eafb8;
 }
-.ad-login-art svg {
+.desk-login-art svg {
   display: block;
   width: 100%;
   max-width: 340px;
@@ -268,23 +268,23 @@
   color: var(--ad-cyan);
   filter: drop-shadow(0 0 25px #45d6e840);
 }
-.ad-login-art h2 {
+.desk-login-art h2 {
   font-size: 34px;
   max-width: 300px;
   line-height: 1.2;
   margin-bottom: 16px;
 }
-.ad-login-art p {
+.desk-login-art p {
   color: var(--ad-muted);
   line-height: 1.8;
   max-width: 340px;
 }
-.ad-login-art > footer {
+.desk-login-art > footer {
   margin-top: 30px;
   padding-top: 24px;
   border-top: 1px solid #29414d;
 }
-.ad-sidebar {
+.desk-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   width: 240px;
@@ -295,17 +295,17 @@
   flex-direction: column;
   z-index: 40;
 }
-.ad-nav-label {
+.desk-nav-label {
   font-size: 9px;
   letter-spacing: 2px;
   color: #708198;
   margin: 52px 12px 18px !important;
 }
-.ad-sidebar nav {
+.desk-sidebar nav {
   display: grid;
   gap: 8px;
 }
-.ad-sidebar nav button {
+.desk-sidebar nav button {
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 14px 12px;
@@ -316,31 +316,31 @@
   align-items: center;
   gap: 12px;
 }
-.ad-sidebar nav button.active {
+.desk-sidebar nav button.active {
   color: var(--ad-cyan);
   background: #12303b;
   border-color: #244958;
 }
-.ad-sidebar nav button small {
+.desk-sidebar nav button small {
   margin-left: auto;
 }
-.ad-sidebar-foot {
+.desk-sidebar-foot {
   margin-top: auto;
   border-top: 1px solid var(--ad-line);
   padding-top: 22px;
 }
-.ad-person {
+.desk-person {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 12px;
 }
-.ad-person small {
+.desk-person small {
   display: block;
   font-size: 10px;
   margin-top: 5px;
 }
-.ad-avatar {
+.desk-avatar {
   width: 32px;
   height: 32px;
   display: inline-grid;
@@ -351,7 +351,7 @@
   background: #162b37;
   font-size: 10px;
 }
-.ad-sidebar-foot form button {
+.desk-sidebar-foot form button {
   display: block;
   margin-top: 24px;
   padding: 0;
@@ -362,20 +362,20 @@
   color: var(--ad-muted);
   cursor: pointer;
 }
-.ad-reference small {
+.desk-reference small {
   display: block;
   margin-top: 4px;
   color: #a7e5ed;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.ad-login-card form + form {
+.desk-login-card form + form {
   margin-top: 12px;
 }
-.ad-main {
+.desk-main {
   margin-left: 240px;
 }
-.ad-topbar {
+.desk-topbar {
   height: 76px;
   border-bottom: 1px solid var(--ad-line);
   padding: 0 36px;
@@ -383,127 +383,127 @@
   justify-content: space-between;
   align-items: center;
 }
-.ad-topbar > div {
+.desk-topbar > div {
   display: flex;
   align-items: center;
   gap: 16px;
 }
-.ad-breadcrumb {
+.desk-breadcrumb {
   font-size: 12px;
   color: #718199;
 }
-.ad-breadcrumb b {
+.desk-breadcrumb b {
   font-weight: 400;
   color: #c7d3e1;
   margin-left: 12px;
 }
-.ad-session {
+.desk-session {
   font-size: 10px;
   color: var(--ad-muted);
 }
-.ad-content {
+.desk-content {
   max-width: 1600px;
   padding: 42px 36px;
   margin: auto;
 }
-.ad-page-heading {
+.desk-page-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
   margin-bottom: 34px;
 }
-.ad-page-heading p:last-child {
+.desk-page-heading p:last-child {
   color: var(--ad-muted);
   margin-top: 14px;
   line-height: 1.6;
 }
-.ad-page-heading > .ad-button {
+.desk-page-heading > .desk-button {
   font-size: 12px;
   white-space: nowrap;
 }
-.ad-metrics {
+.desk-metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 28px;
 }
-.ad-metric {
+.desk-metric {
   padding: 24px;
   background: linear-gradient(135deg, #142131, #101722);
   border: 1px solid var(--ad-line);
   border-radius: 12px;
 }
-.ad-metric > div {
+.desk-metric > div {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   color: var(--ad-muted);
   font-size: 12px;
 }
-.ad-metric > div span:last-child {
+.desk-metric > div span:last-child {
   color: var(--ad-cyan);
 }
-.ad-metric > strong {
+.desk-metric > strong {
   display: block;
   font-size: 40px;
   font-weight: 500;
   letter-spacing: -2px;
   margin: 20px 0 12px;
 }
-.ad-metric > small {
+.desk-metric > small {
   font-size: 10px;
 }
-.ad-panel {
+.desk-panel {
   background: #0e1622;
   border: 1px solid var(--ad-line);
   border-radius: 12px;
   overflow: hidden;
 }
-.ad-panel-heading {
+.desk-panel-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 26px;
   gap: 15px;
 }
-.ad-panel-heading p {
+.desk-panel-heading p {
   font-size: 11px;
   color: var(--ad-muted);
   margin-top: 9px;
 }
-.ad-panel-label {
+.desk-panel-label {
   font-size: 9px;
   letter-spacing: 1.5px;
   color: #74859b;
 }
-.ad-filters {
+.desk-filters {
   display: flex;
   gap: 12px;
   padding: 0 26px 24px;
 }
-.ad-search {
+.desk-search {
   flex: 1;
   display: flex;
   align-items: center;
   position: relative;
 }
-.ad-search span {
+.desk-search span {
   position: absolute;
   left: 14px;
   font-size: 24px;
   color: var(--ad-muted);
 }
-.ad-search input {
+.desk-search input {
   width: 100%;
   padding-left: 42px;
   font-size: 12px;
 }
-.ad-filters select {
+.desk-filters select {
   font-size: 12px;
   max-width: 190px;
 }
-.ad-table-wrap {
+.desk-table-wrap {
   overflow-x: auto;
 }
 .admin-ui table {
@@ -540,19 +540,19 @@
 .admin-ui tbody tr:hover {
   background: #152131;
 }
-.ad-reference {
+.desk-reference {
   font-size: 10px;
   color: #8da8c3;
   font-family: monospace;
 }
-.ad-account {
+.desk-account {
   display: inline-block;
   padding: 5px 8px;
   background: #1a283a;
   border-radius: 4px;
   font-size: 10px;
 }
-.ad-status {
+.desk-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -563,32 +563,32 @@
   background: #46351d;
   color: #f1bb65;
 }
-.ad-status i {
+.desk-status i {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: currentColor;
 }
-.ad-status.information {
+.desk-status.information {
   color: #9cc7ff;
   background: #1c3452;
 }
-.ad-status.approved {
+.desk-status.approved {
   color: #87dcb7;
   background: #163b31;
 }
-.ad-status.rejected {
+.desk-status.rejected {
   color: #f6a0ab;
   background: #40232d;
 }
-.ad-view {
+.desk-view {
   border: 0;
   background: none;
   color: var(--ad-cyan);
   font-size: 11px;
   padding: 9px 0;
 }
-.ad-pagination {
+.desk-pagination {
   padding: 20px 26px;
   display: flex;
   justify-content: space-between;
@@ -596,12 +596,12 @@
   color: var(--ad-muted);
   font-size: 11px;
 }
-.ad-pagination > div {
+.desk-pagination > div {
   display: flex;
   align-items: center;
   gap: 15px;
 }
-.ad-pagination button {
+.desk-pagination button {
   width: 32px;
   height: 32px;
   border: 1px solid var(--ad-line);
@@ -609,7 +609,7 @@
   background: #152132;
   color: #e9f3ff;
 }
-.ad-bottom-note {
+.desk-bottom-note {
   display: flex;
   gap: 9px;
   align-items: center;
@@ -618,11 +618,11 @@
   padding: 24px 0;
   line-height: 1.6;
 }
-.ad-bottom-note a {
+.desk-bottom-note a {
   margin-left: auto;
   color: var(--ad-muted);
 }
-.ad-toast {
+.desk-toast {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -635,25 +635,25 @@
   margin-bottom: 20px;
   font-size: 12px;
 }
-.ad-toast button {
+.desk-toast button {
   border: 0;
   background: none;
   color: inherit;
   font-size: 20px;
 }
-.ad-empty {
+.desk-empty {
   text-align: center;
   padding: 60px 20px;
 }
-.ad-empty > span {
+.desk-empty > span {
   font-size: 36px;
   color: var(--ad-cyan);
 }
-.ad-empty p {
+.desk-empty p {
   margin: 12px 0 24px;
   color: var(--ad-muted);
 }
-.ad-settings {
+.desk-settings {
   padding: 30px;
 }
 .admin-ui dl {
@@ -671,17 +671,17 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
-.ad-settings .ad-button {
+.desk-settings .desk-button {
   margin: 10px 12px 0 0;
   font-size: 12px;
 }
-.ad-document-grid {
+.desk-document-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   padding: 0 26px 24px;
 }
-.ad-document {
+.desk-document {
   background: #141f2e;
   border: 1px solid var(--ad-line);
   color: inherit;
@@ -689,27 +689,27 @@
   padding: 22px;
   border-radius: 8px;
 }
-.ad-document > span {
+.desk-document > span {
   display: block;
   font-size: 28px;
   color: var(--ad-cyan);
   margin-bottom: 25px;
 }
-.ad-document strong,
-.ad-document small,
-.ad-document b {
+.desk-document strong,
+.desk-document small,
+.desk-document b {
   display: block;
   margin-top: 12px;
 }
-.ad-document small {
+.desk-document small {
   font-size: 10px;
 }
-.ad-document b {
+.desk-document b {
   font-size: 11px;
   color: var(--ad-cyan);
   font-weight: 400;
 }
-.ad-drawer {
+.desk-drawer {
   position: fixed;
   inset: 0 0 0 auto;
   width: min(720px, 100%);
@@ -723,27 +723,27 @@
   background: #0e1723;
   color: #edf4fa;
 }
-.ad-drawer::backdrop {
+.desk-drawer::backdrop {
   background: #020711b8;
   backdrop-filter: blur(5px);
 }
-.ad-drawer-inner {
+.desk-drawer-inner {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-.ad-drawer-inner > header {
+.desk-drawer-inner > header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 28px 32px;
   border-bottom: 1px solid var(--ad-line);
 }
-.ad-drawer-inner > header h2 {
+.desk-drawer-inner > header h2 {
   font-size: 27px;
   margin-bottom: 14px;
 }
-.ad-icon-button {
+.desk-icon-button {
   width: 36px;
   height: 36px;
   border: 1px solid var(--ad-line);
@@ -752,50 +752,50 @@
   color: #d8e4f2;
   font-size: 24px;
 }
-.ad-drawer-body {
+.desk-drawer-body {
   padding: 24px 32px;
   overflow-y: auto;
   flex: 1;
   overscroll-behavior: contain;
 }
-.ad-fictional-note {
+.desk-fictional-note {
   color: var(--ad-muted);
   font-size: 11px;
   padding: 12px;
   background: #182536;
   border-radius: 6px;
 }
-.ad-detail-group {
+.desk-detail-group {
   padding: 28px 0;
   border-bottom: 1px solid var(--ad-line);
 }
-.ad-detail-group h3 {
+.desk-detail-group h3 {
   font-size: 11px;
   color: var(--ad-cyan);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-.ad-detail-group label {
+.desk-detail-group label {
   display: block;
   font-size: 12px;
   margin: 20px 0 10px;
 }
-.ad-detail-group textarea {
+.desk-detail-group textarea {
   width: 100%;
   resize: vertical;
   line-height: 1.5;
   margin-bottom: 12px;
 }
-.ad-doc-buttons {
+.desk-doc-buttons {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 20px;
 }
-.ad-doc-buttons .ad-button {
+.desk-doc-buttons .desk-button {
   font-size: 11px;
 }
-.ad-file-preview {
+.desk-file-preview {
   display: grid;
   gap: 16px;
   margin-top: 20px;
@@ -803,15 +803,15 @@
   border: 1px dashed #4b657d;
   background: #182636;
 }
-.ad-file-preview p {
+.desk-file-preview p {
   font-size: 9px;
   letter-spacing: 2px;
   color: #f1bb65;
 }
-.ad-file-preview .ad-view {
+.desk-file-preview .desk-view {
   text-align: left;
 }
-.ad-saved-note {
+.desk-saved-note {
   display: grid;
   gap: 8px;
   margin-top: 16px !important;
@@ -821,17 +821,17 @@
   font-size: 12px;
   overflow-wrap: anywhere;
 }
-.ad-saved-note b {
+.desk-saved-note b {
   color: var(--ad-muted);
   font-size: 10px;
 }
-.ad-history {
+.desk-history {
   padding-left: 18px;
   color: var(--ad-muted);
   font-size: 12px;
   line-height: 2;
 }
-.ad-drawer-inner > footer {
+.desk-drawer-inner > footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -839,24 +839,24 @@
   background: #111d2a;
   border-top: 1px solid var(--ad-line);
 }
-.ad-drawer-inner > footer .ad-button {
+.desk-drawer-inner > footer .desk-button {
   font-size: 11px;
 }
-.ad-confirm {
+.desk-confirm {
   width: 100%;
 }
-.ad-confirm p {
+.desk-confirm p {
   font-size: 12px;
   line-height: 1.6;
   color: var(--ad-muted);
   margin: 10px 0 18px;
 }
-.ad-confirm .ad-button {
+.desk-confirm .desk-button {
   margin-right: 10px;
 }
-.ad-menu,
-.ad-mobile-list,
-.ad-scrim {
+.desk-menu,
+.desk-mobile-list,
+.desk-scrim {
   display: none;
 }
 @media (min-width: 1600px) {
@@ -867,51 +867,51 @@
   }
 }
 @media (max-width: 1150px) {
-  .ad-sidebar {
+  .desk-sidebar {
     width: 210px;
     padding-inline: 16px;
   }
-  .ad-main {
+  .desk-main {
     margin-left: 210px;
   }
-  .ad-content {
+  .desk-content {
     padding: 32px 24px;
   }
-  .ad-metrics {
+  .desk-metrics {
     grid-template-columns: repeat(2, 1fr);
   }
-  .ad-page-heading {
+  .desk-page-heading {
     align-items: flex-start;
   }
   .admin-ui h1 {
     font-size: 32px;
   }
-  .ad-document-grid {
+  .desk-document-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .ad-login {
+  .desk-login {
     padding: 28px;
   }
-  .ad-login-card {
+  .desk-login-card {
     padding: 36px 30px;
   }
-  .ad-login-grid {
+  .desk-login-grid {
     grid-template-columns: 1fr 1fr;
   }
-  .ad-login-art {
+  .desk-login-art {
     padding: 28px;
   }
 }
 @media (max-width: 760px) {
-  .ad-sidebar {
+  .desk-sidebar {
     transform: translateX(-100%);
     width: 260px;
     transition: transform 0.2s;
   }
-  .ad-sidebar.open {
+  .desk-sidebar.open {
     transform: translateX(0);
   }
-  .ad-scrim {
+  .desk-scrim {
     display: block;
     position: fixed;
     inset: 0;
@@ -919,10 +919,10 @@
     border: 0;
     z-index: 30;
   }
-  .ad-main {
+  .desk-main {
     margin-left: 0;
   }
-  .ad-menu {
+  .desk-menu {
     display: block;
     color: var(--ad-cyan);
     background: none;
@@ -930,82 +930,82 @@
     font-size: 22px;
     padding: 10px;
   }
-  .ad-topbar {
+  .desk-topbar {
     height: 68px;
     padding: 0 12px;
   }
-  .ad-topbar > div {
+  .desk-topbar > div {
     gap: 8px;
   }
-  .ad-session {
+  .desk-session {
     display: none;
   }
-  .ad-content {
+  .desk-content {
     padding: 28px 18px;
   }
-  .ad-page-heading {
+  .desk-page-heading {
     display: block;
     margin-bottom: 24px;
   }
-  .ad-page-heading > .ad-button {
+  .desk-page-heading > .desk-button {
     margin-top: 20px;
   }
-  .ad-kicker {
+  .desk-kicker {
     font-size: 9px;
     letter-spacing: 1.5px;
   }
   .admin-ui h1 {
     font-size: 32px;
   }
-  .ad-page-heading p:last-child {
+  .desk-page-heading p:last-child {
     font-size: 12px;
   }
-  .ad-metrics {
+  .desk-metrics {
     gap: 10px;
   }
-  .ad-metric {
+  .desk-metric {
     padding: 17px 14px;
   }
-  .ad-metric > div {
+  .desk-metric > div {
     font-size: 10px;
   }
-  .ad-metric > strong {
+  .desk-metric > strong {
     font-size: 34px;
     margin: 15px 0 10px;
   }
-  .ad-metric > small {
+  .desk-metric > small {
     font-size: 9px;
     line-height: 1.6;
   }
-  .ad-panel-heading {
+  .desk-panel-heading {
     padding: 22px 16px;
   }
-  .ad-panel-heading h2 {
+  .desk-panel-heading h2 {
     font-size: 18px;
   }
-  .ad-panel-label {
+  .desk-panel-label {
     display: none;
   }
-  .ad-filters {
+  .desk-filters {
     flex-wrap: wrap;
     padding: 0 16px 20px;
     gap: 10px;
   }
-  .ad-search {
+  .desk-search {
     flex-basis: 100%;
   }
-  .ad-filters select {
+  .desk-filters select {
     flex: 1;
     width: 40%;
     max-width: none;
   }
-  .ad-table-wrap {
+  .desk-table-wrap {
     display: none;
   }
-  .ad-mobile-list {
+  .desk-mobile-list {
     display: block;
   }
-  .ad-mobile-row {
+  .desk-mobile-row {
     width: 100%;
     padding: 20px 16px;
     display: block;
@@ -1015,111 +1015,111 @@
     color: inherit;
     text-align: left;
   }
-  .ad-mobile-row > div {
+  .desk-mobile-row > div {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
   }
-  .ad-mobile-row > strong {
+  .desk-mobile-row > strong {
     display: block;
     font-size: 15px;
     margin: 17px 0 8px;
   }
-  .ad-mobile-row > small {
+  .desk-mobile-row > small {
     display: block;
     font-size: 11px;
   }
-  .ad-mobile-row > div:last-child {
+  .desk-mobile-row > div:last-child {
     margin-top: 18px;
     font-size: 10px;
     color: var(--ad-muted);
   }
-  .ad-mobile-row b {
+  .desk-mobile-row b {
     color: var(--ad-cyan);
   }
-  .ad-pagination {
+  .desk-pagination {
     padding: 18px 16px;
     font-size: 10px;
     border-top: 1px solid var(--ad-line);
   }
-  .ad-pagination button {
+  .desk-pagination button {
     width: 40px;
     height: 40px;
   }
-  .ad-pagination > div {
+  .desk-pagination > div {
     gap: 10px;
   }
-  .ad-bottom-note {
+  .desk-bottom-note {
     flex-wrap: wrap;
     align-items: flex-start;
   }
-  .ad-bottom-note a {
+  .desk-bottom-note a {
     margin-left: 18px;
   }
-  .ad-document-grid {
+  .desk-document-grid {
     grid-template-columns: 1fr;
     padding-inline: 16px;
   }
-  .ad-settings {
+  .desk-settings {
     padding: 22px;
   }
-  .ad-settings dl {
+  .desk-settings dl {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .ad-settings dd {
+  .desk-settings dd {
     margin-bottom: 16px;
   }
-  .ad-drawer-inner > header {
+  .desk-drawer-inner > header {
     padding: 24px 20px;
   }
-  .ad-drawer-inner > header h2 {
+  .desk-drawer-inner > header h2 {
     font-size: 24px;
   }
-  .ad-drawer-body {
+  .desk-drawer-body {
     padding: 20px;
   }
-  .ad-drawer-inner > footer {
+  .desk-drawer-inner > footer {
     flex-wrap: wrap;
     padding: 16px;
   }
-  .ad-drawer-inner > footer > .ad-button {
+  .desk-drawer-inner > footer > .desk-button {
     flex: 1;
     white-space: nowrap;
   }
-  .ad-drawer-inner > footer > .primary {
+  .desk-drawer-inner > footer > .primary {
     flex-basis: 100%;
   }
-  .ad-login {
+  .desk-login {
     padding: 24px 18px;
   }
-  .ad-login > header span {
+  .desk-login > header span {
     display: none;
   }
-  .ad-login-grid {
+  .desk-login-grid {
     display: block;
     min-height: 0;
     margin: 32px 0;
   }
-  .ad-login-card {
+  .desk-login-card {
     padding: 30px 24px;
   }
-  .ad-login-heading {
+  .desk-login-heading {
     margin-top: 40px;
   }
-  .ad-login-heading h1 {
+  .desk-login-heading h1 {
     font-size: 36px;
   }
-  .ad-login-art {
+  .desk-login-art {
     display: none;
   }
-  .ad-login > footer {
+  .desk-login > footer {
     font-size: 9px;
     gap: 14px;
     line-height: 1.6;
   }
-  .ad-doc-buttons .ad-button {
+  .desk-doc-buttons .desk-button {
     width: 100%;
   }
 }
@@ -1131,23 +1131,23 @@
   }
 }
 
-.admin-ui .ad-login-art svg {
+.admin-ui .desk-login-art svg {
   stroke: #45d6e8;
   stroke-width: 1;
   opacity: 0.8;
 }
-.admin-ui .ad-login-art svg .ad-key {
+.admin-ui .desk-login-art svg .desk-key {
   fill: #45d6e825;
   stroke-width: 2;
 }
-.admin-ui .ad-login-art svg .ad-node {
+.admin-ui .desk-login-art svg .desk-node {
   fill: #45d6e8;
 }
 @media (max-width: 760px) {
-  .ad-sidebar {
+  .desk-sidebar {
     visibility: hidden;
   }
-  .ad-sidebar.open {
+  .desk-sidebar.open {
     visibility: visible;
   }
 }

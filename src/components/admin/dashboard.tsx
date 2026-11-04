@@ -123,10 +123,10 @@ export function AdminDashboard({
     setNotice("Filtered applications exported.");
   }
   return (
-    <div className="ad-workspace">
-      <aside className={"ad-sidebar " + (mobile ? "open" : "")}>
+    <div className="desk-workspace">
+      <aside className={"desk-sidebar " + (mobile ? "open" : "")}>
         <AdminBrand />
-        <p className="ad-nav-label">WORKSPACE</p>
+        <p className="desk-nav-label">WORKSPACE</p>
         <nav aria-label="Administration">
           {[
             ["Overview", "◫"],
@@ -150,9 +150,9 @@ export function AdminDashboard({
             </button>
           ))}
         </nav>
-        <div className="ad-sidebar-foot">
-          <div className="ad-person">
-            <span className="ad-avatar">AD</span>
+        <div className="desk-sidebar-foot">
+          <div className="desk-person">
+            <span className="desk-avatar">AD</span>
             <div>
               Administrator<small>Application review</small>
             </div>
@@ -164,37 +164,37 @@ export function AdminDashboard({
       </aside>
       {mobile && (
         <button
-          className="ad-scrim"
+          className="desk-scrim"
           aria-label="Close navigation"
           onClick={() => setMobile(false)}
         />
       )}
-      <div className="ad-main">
-        <header className="ad-topbar">
+      <div className="desk-main">
+        <header className="desk-topbar">
           <div>
             <button
-              className="ad-menu"
+              className="desk-menu"
               aria-label="Open navigation"
               onClick={() => setMobile(true)}
             >
               ☰
             </button>
-            <span className="ad-breadcrumb">
+            <span className="desk-breadcrumb">
               Workspace <b>/ {section}</b>
             </span>
           </div>
-          <div className="ad-top-right">
-            <span className="ad-session">
+          <div className="desk-top-right">
+            <span className="desk-session">
               {rows.filter((r) => !r.demo).length} client ·{" "}
               {rows.filter((r) => r.demo).length} demo records
             </span>
-            <span className="ad-avatar">AD</span>
+            <span className="desk-avatar">AD</span>
           </div>
         </header>
-        <main className="ad-content">
-          <div className="ad-page-heading">
+        <main className="desk-content">
+          <div className="desk-page-heading">
             <div>
-              <p className="ad-kicker">FC CAPITAL / APPLICATION DESK</p>
+              <p className="desk-kicker">FC CAPITAL / APPLICATION DESK</p>
               <h1>
                 {section === "Overview" ? "A clearer overview." : section}
               </h1>
@@ -209,13 +209,13 @@ export function AdminDashboard({
               </p>
             </div>
             {section !== "Settings" && (
-              <button className="ad-button" onClick={exportRows}>
+              <button className="desk-button" onClick={exportRows}>
                 ↓ Export applications
               </button>
             )}
           </div>
           {notice && (
-            <div className="ad-toast" role="status">
+            <div className="desk-toast" role="status">
               ✓ {notice}
               <button
                 aria-label="Dismiss notification"
@@ -226,7 +226,7 @@ export function AdminDashboard({
             </div>
           )}
           {section === "Settings" ? (
-            <section className="ad-panel ad-settings">
+            <section className="desk-panel desk-settings">
               <h2>Workspace settings</h2>
               <dl>
                 <dt>Administrator</dt>
@@ -246,7 +246,7 @@ export function AdminDashboard({
           ) : (
             <>
               {section === "Overview" && (
-                <div className="ad-metrics">
+                <div className="desk-metrics">
                   <MetricCard
                     label="Total applications"
                     value={rows.length}
@@ -272,8 +272,8 @@ export function AdminDashboard({
                   ))}
                 </div>
               )}
-              <section className="ad-panel">
-                <div className="ad-panel-heading">
+              <section className="desk-panel">
+                <div className="desk-panel-heading">
                   <div>
                     <h2>
                       {section === "Documents"
@@ -288,14 +288,14 @@ export function AdminDashboard({
                       in this view
                     </p>
                   </div>
-                  <span className="ad-panel-label">
+                  <span className="desk-panel-label">
                     {section === "Documents"
                       ? "FILES"
                       : "APPLICATION MANAGEMENT"}
                   </span>
                 </div>
-                <div className="ad-filters">
-                  <label className="ad-search">
+                <div className="desk-filters">
+                  <label className="desk-search">
                     <span aria-hidden="true">⌕</span>
                     <input
                       aria-label="Search applications"
@@ -334,12 +334,12 @@ export function AdminDashboard({
                   </select>
                 </div>
                 {!filtered.length ? (
-                  <div className="ad-empty">
+                  <div className="desk-empty">
                     <span>⌕</span>
                     <h3>No matching applications</h3>
                     <p>Try another name, reference, or filter.</p>
                     <button
-                      className="ad-button"
+                      className="desk-button"
                       onClick={() => {
                         setSearch("");
                         setStatus("All");
@@ -351,11 +351,11 @@ export function AdminDashboard({
                     </button>
                   </div>
                 ) : section === "Documents" ? (
-                  <div className="ad-document-grid">
+                  <div className="desk-document-grid">
                     {shown.map((r) => (
                       <button
                         key={r.id}
-                        className="ad-document"
+                        className="desk-document"
                         onClick={() => {
                           open(r.id);
                           setPreview("Identity document");
@@ -375,7 +375,7 @@ export function AdminDashboard({
                   </div>
                 ) : (
                   <>
-                    <div className="ad-table-wrap">
+                    <div className="desk-table-wrap">
                       <table>
                         <thead>
                           <tr>
@@ -397,7 +397,7 @@ export function AdminDashboard({
                         <tbody>
                           {shown.map((r) => (
                             <tr key={r.id}>
-                              <td className="ad-reference">
+                              <td className="desk-reference">
                                 {r.reference}
                                 {r.demo && <small>Demo</small>}
                               </td>
@@ -407,7 +407,7 @@ export function AdminDashboard({
                               </td>
                               <td>{r.country}</td>
                               <td>
-                                <span className="ad-account">{r.account}</span>
+                                <span className="desk-account">{r.account}</span>
                               </td>
                               <td>{r.submitted}</td>
                               <td>
@@ -415,7 +415,7 @@ export function AdminDashboard({
                               </td>
                               <td>
                                 <button
-                                  className="ad-view"
+                                  className="desk-view"
                                   aria-label={"View application for " + r.name}
                                   onClick={() => open(r.id)}
                                 >
@@ -427,15 +427,15 @@ export function AdminDashboard({
                         </tbody>
                       </table>
                     </div>
-                    <div className="ad-mobile-list">
+                    <div className="desk-mobile-list">
                       {shown.map((r) => (
                         <button
-                          className="ad-mobile-row"
+                          className="desk-mobile-row"
                           key={r.id}
                           onClick={() => open(r.id)}
                         >
                           <div>
-                            <span className="ad-reference">
+                            <span className="desk-reference">
                               {r.reference}
                               {r.demo && " · Demo"}
                             </span>
@@ -454,7 +454,7 @@ export function AdminDashboard({
                     </div>
                   </>
                 )}
-                <div className="ad-pagination">
+                <div className="desk-pagination">
                   <span>
                     Showing {filtered.length ? (current - 1) * 5 + 1 : 0}–
                     {Math.min(current * 5, filtered.length)} of{" "}
@@ -481,7 +481,7 @@ export function AdminDashboard({
                   </div>
                 </div>
               </section>
-              <div className="ad-bottom-note">
+              <div className="desk-bottom-note">
                 <span>◈</span> Review decisions and CRM access are managed
                 separately.<Link href="/">Public website ↗</Link>
               </div>
@@ -491,7 +491,7 @@ export function AdminDashboard({
       </div>
       <dialog
         aria-label="Application details"
-        className="ad-drawer"
+        className="desk-drawer"
         ref={dialog}
         onCancel={close}
         onClick={(e) => {
@@ -499,25 +499,25 @@ export function AdminDashboard({
         }}
       >
         {app && (
-          <div className="ad-drawer-inner">
+          <div className="desk-drawer-inner">
             <header>
               <div>
-                <p className="ad-kicker">
+                <p className="desk-kicker">
                   {app.reference} / APPLICATION DETAILS
                 </p>
                 <h2>{app.name}</h2>
                 <StatusBadge status={app.status} />
               </div>
               <button
-                className="ad-icon-button"
+                className="desk-icon-button"
                 aria-label="Close application"
                 onClick={close}
               >
                 ×
               </button>
             </header>
-            <div className="ad-drawer-body">
-              <p className="ad-fictional-note">
+            <div className="desk-drawer-body">
+              <p className="desk-fictional-note">
                 {app.demo ? "Demo record" : "Client application"} · Submitted{" "}
                 {app.submitted}
               </p>
@@ -541,10 +541,10 @@ export function AdminDashboard({
                   <p>No documents uploaded with this application.</p>
                 )}
                 {!app.demo && (
-                  <div className="ad-doc-buttons">
+                  <div className="desk-doc-buttons">
                     {app.documents.map((d) => (
                       <a
-                        className="ad-button"
+                        className="desk-button"
                         key={d.id}
                         href={"/api/documents/" + d.id}
                       >
@@ -554,10 +554,10 @@ export function AdminDashboard({
                   </div>
                 )}
                 {app.demo && (
-                  <div className="ad-doc-buttons">
+                  <div className="desk-doc-buttons">
                     {["Identity document", "Proof of address"].map((t) => (
                       <button
-                        className="ad-button"
+                        className="desk-button"
                         key={t}
                         onClick={() => setPreview(preview === t ? "" : t)}
                       >
@@ -567,12 +567,12 @@ export function AdminDashboard({
                   </div>
                 )}
                 {app.demo && preview && (
-                  <div className="ad-file-preview">
+                  <div className="desk-file-preview">
                     <p>SAMPLE / NOT A VALID DOCUMENT</p>
                     <h3>{preview}</h3>
                     <strong>{app.name}</strong>
                     <small>{app.id} · Fictional placeholder</small>
-                    <button className="ad-view" onClick={() => setPreview("")}>
+                    <button className="desk-view" onClick={() => setPreview("")}>
                       Close preview
                     </button>
                   </div>
@@ -589,7 +589,7 @@ export function AdminDashboard({
                   maxLength={1000}
                 />
                 <button
-                  className="ad-button"
+                  className="desk-button"
                   disabled={!note.trim()}
                   onClick={async () => {
                     const text = note.trim();
@@ -604,14 +604,14 @@ export function AdminDashboard({
                   Save note
                 </button>
                 {app.notes.map((n, i) => (
-                  <p className="ad-saved-note" key={i}>
+                  <p className="desk-saved-note" key={i}>
                     <b>Administrator</b>
                     {n}
                   </p>
                 ))}
               </DetailGroup>
               <DetailGroup title="08 / Review history">
-                <ol className="ad-history">
+                <ol className="desk-history">
                   {app.history.map((h, i) => (
                     <li key={i}>{h}</li>
                   ))}
@@ -620,7 +620,7 @@ export function AdminDashboard({
             </div>
             <footer>
               {confirm ? (
-                <div className="ad-confirm">
+                <div className="desk-confirm">
                   <h3>Confirm {confirm.toLowerCase()}?</h3>
                   <p>
                     {app.demo
@@ -629,31 +629,31 @@ export function AdminDashboard({
                     No email or CRM account will be created.
                   </p>
                   <button
-                    className="ad-button"
+                    className="desk-button"
                     onClick={() => setConfirm(null)}
                   >
                     Cancel
                   </button>
-                  <button className="ad-button primary" onClick={update}>
+                  <button className="desk-button primary" onClick={update}>
                     Confirm status change
                   </button>
                 </div>
               ) : (
                 <>
                   <button
-                    className="ad-button danger"
+                    className="desk-button danger"
                     onClick={() => setConfirm("Rejected")}
                   >
                     Reject
                   </button>
                   <button
-                    className="ad-button"
+                    className="desk-button"
                     onClick={() => setConfirm("Needs information")}
                   >
                     Request information
                   </button>
                   <button
-                    className="ad-button primary"
+                    className="desk-button primary"
                     onClick={() => setConfirm("Approved")}
                   >
                     Approve application
