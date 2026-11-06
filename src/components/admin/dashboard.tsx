@@ -1,16 +1,14 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { logout, reviewDocument, updateApplication } from "@/app/admin/actions";
+import { logout, updateApplication } from "@/app/admin/actions";
 import {
   detailGroups,
   reviewStatuses,
-  type DocReview,
   type ReviewApplication,
   type ReviewStatus,
 } from "@/lib/admin-workspace";
 import { AdminBrand, StatusBadge, MetricCard, DetailGroup } from "./shared";
-import type { KycKind } from "@/lib/kyc";
 type Doc = ReviewApplication["documents"][number];
 const digits = (v: string) => v.replace(/\D/g, "");
 function matches(r: ReviewApplication, query: string) {
@@ -77,13 +75,6 @@ function Lightbox({
     </div>
   );
 }
-const docProgress = (a: ReviewApplication) => {
-  const docs = a.documents.filter((d) => d.reviewable);
-  return {
-    total: docs.length,
-    approved: docs.filter((d) => a.reviews[d.id]?.status === "Approved").length,
-  };
-};
 const show = (v: unknown) =>
   v === true ? "Yes" : v === false ? "No" : String(v ?? "").trim() || "—";
 export function AdminDashboard({
@@ -104,9 +95,6 @@ export function AdminDashboard({
   const [note, setNote] = useState("");
   const [notice, setNotice] = useState(error);
   const [mobile, setMobile] = useState(false);
-  const [docEdit, setDocEdit] = useState<string | null>(null);
-  const [rejecting, setRejecting] = useState<string | null>(null);
-  const [reason, setReason] = useState("");
   const [lightbox, setLightbox] = useState<Doc | null>(null);
   const [pageView, setPageView] = useState<{ doc: Doc; name: string } | null>(
     null,
@@ -137,9 +125,6 @@ export function AdminDashboard({
   function resetDrawer() {
     setConfirm(null);
     setNote("");
-    setDocEdit(null);
-    setRejecting(null);
-    setReason("");
     setLightbox(null);
     setChanging(false);
   }
@@ -150,39 +135,6 @@ export function AdminDashboard({
   function open(id: string) {
     setSelected(id);
     resetDrawer();
-  }
-  async function decide(
-    target: ReviewApplication,
-    doc: Doc,
-    review: DocReview,
-  ) {
-    const before = rows;
-    const label =
-      doc.kind +
-      " " +
-      review.status.toLowerCase() +
-      (review.reason ? ": " + review.reason : "");
-    setRows(
-      rows.map((r) =>
-        r.id === target.id
-          ? {
-              ...r,
-              reviews: { ...r.reviews, [doc.id]: review },
-              history: [...r.history, label],
-            }
-          : r,
-      ),
-    );
-    setDocEdit(null);
-    setRejecting(null);
-    setReason("");
-    if (target.demo) return;
-    try {
-      await reviewDocument(target.id, doc.id as KycKind, review);
-    } catch {
-      setRows(before);
-      setNotice("Could not save the document review. Please try again.");
-    }
   }
   async function save(
     target: ReviewApplication,
@@ -497,17 +449,11 @@ export function AdminDashboard({
                             </span>
                           </div>
                           <div className="desk-doc-person-side">
-                            {docProgress(r).total > 0 && (
-                              <small>
-                                {docProgress(r).approved}/{docProgress(r).total}{" "}
-                                approved
-                              </small>
-                            )}
                             <button
                               className="desk-view"
                               onClick={() => open(r.id)}
                             >
-                              Review ↗
+                              View ↗
                             </button>
                           </div>
                         </header>
@@ -537,13 +483,6 @@ export function AdminDashboard({
                               </span>
                               <span className="desk-doc-meta">
                                 <strong>{d.kind}</strong>
-                                {d.reviewable && (
-                                  <StatusBadge
-                                    status={
-                                      r.reviews[d.id]?.status || "Pending"
-                                    }
-                                  />
-                                )}
                               </span>
                             </button>
                           ))}
@@ -736,17 +675,8 @@ export function AdminDashboard({
                 {!app.documents.length && (
                   <p>No documents uploaded with this application.</p>
                 )}
-                {docProgress(app).total > 0 && (
-                  <p className="desk-doc-progress">
-                    {docProgress(app).approved} of {docProgress(app).total}{" "}
-                    documents approved
-                  </p>
-                )}
                 <div className="desk-doc-grid">
                   {app.documents.map((d) => {
-                    const review = app.reviews[d.id];
-                    const editing =
-                      d.reviewable && (!review || docEdit === d.id);
                     return (
                       <article className="desk-doc-card" key={d.id}>
                         <button
@@ -768,93 +698,7 @@ export function AdminDashboard({
                         </button>
                         <div className="desk-doc-meta">
                           <strong>{d.kind}</strong>
-                          {d.reviewable && (
-                            <StatusBadge status={review?.status || "Pending"} />
-                          )}
                         </div>
-                        {review?.reason && (
-                          <p className="desk-doc-reason">{review.reason}</p>
-                        )}
-                        {editing ? (
-                          rejecting === d.id ? (
-                            <div className="desk-doc-reject">
-                              <label htmlFor={"reason-" + d.id}>
-                                Reason for rejecting
-                              </label>
-                              <input
-                                id={"reason-" + d.id}
-                                value={reason}
-                                maxLength={300}
-                                placeholder="e.g. Blurry, expired, details not readable"
-                                onChange={(e) => setReason(e.target.value)}
-                                autoFocus
-                              />
-                              <div className="desk-doc-actions">
-                                <button
-                                  className="desk-button"
-                                  onClick={() => {
-                                    setRejecting(null);
-                                    setReason("");
-                                  }}
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  className="desk-button danger"
-                                  disabled={!reason.trim()}
-                                  onClick={() =>
-                                    decide(app, d, {
-                                      status: "Rejected",
-                                      reason: reason.trim(),
-                                    })
-                                  }
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="desk-doc-actions">
-                              <button
-                                className="desk-button danger"
-                                onClick={() => {
-                                  setRejecting(d.id);
-                                  setReason("");
-                                }}
-                              >
-                                Reject
-                              </button>
-                              <button
-                                className="desk-button primary"
-                                onClick={() =>
-                                  decide(app, d, { status: "Approved" })
-                                }
-                              >
-                                Approve
-                              </button>
-                              {review && (
-                                <button
-                                  className="desk-link"
-                                  onClick={() => setDocEdit(null)}
-                                >
-                                  Cancel
-                                </button>
-                              )}
-                            </div>
-                          )
-                        ) : (
-                          d.reviewable && (
-                            <button
-                              className="desk-link"
-                              onClick={() => {
-                                setDocEdit(d.id);
-                                setRejecting(null);
-                              }}
-                            >
-                              ✎ Edit decision
-                            </button>
-                          )
-                        )}
                       </article>
                     );
                   })}
@@ -935,12 +779,6 @@ export function AdminDashboard({
                 </div>
               ) : (
                 <>
-                  {docProgress(app).approved < docProgress(app).total && (
-                    <p className="desk-lock">
-                      Approve all documents to enable approval (
-                      {docProgress(app).approved}/{docProgress(app).total})
-                    </p>
-                  )}
                   {changing && (
                     <button
                       className="desk-link"
@@ -968,9 +806,6 @@ export function AdminDashboard({
                   {app.status !== "Approved" && (
                     <button
                       className="desk-button primary"
-                      disabled={
-                        docProgress(app).approved < docProgress(app).total
-                      }
                       onClick={() => setConfirm("Approved")}
                     >
                       Approve application
