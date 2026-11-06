@@ -9,12 +9,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "1.1.1",
     "@vercel/blob": "^2.4.0",
     "gsap": "latest",
     "lenis": "latest",
     "mongodb": "^7.7.0",
     "next": "latest",
     "next-auth": "^5.0.0-beta.32",
+    "qrcode": "1.5.4",
     "react": "latest",
     "react-dom": "latest",
     "react-hook-form": "latest",
@@ -24,6 +26,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
+    "@types/qrcode": "1.5.5",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "tailwindcss": "latest",

@@ -1,6 +1,8 @@
-import { isAdmin, ADMIN } from "@/auth";
+import { ADMIN } from "@/auth";
 import { Resend } from "resend";
 import { database } from "@/lib/server/database";
+import { findSession, sessions } from "@/lib/server/kyc";
+import { requiredKinds } from "@/lib/kyc";
 import { empty, schemaFor, type Application } from "@/lib/demo";
 import { z } from "zod";
 export const runtime = "nodejs";
@@ -8,7 +10,7 @@ const input = z
   .object({
     id: z.string().uuid(),
     data: z.record(z.string(), z.unknown()),
-    documents: z.array(z.string().uuid()).max(3).default([]),
+    kyc: z.object({ id: z.string(), secret: z.string() }).strict(),
   })
   .strict();
 function clean(raw: Record<string, unknown>) {
@@ -62,28 +64,44 @@ export async function POST(request: Request) {
   } catch {
     return reply({ error: "Invalid JSON." }, 400);
   }
-  const data = parsed.success ? clean(parsed.data.data) : null;
-  if (!parsed.success || !data)
+  if (!parsed.success)
     return reply(
       { error: "Some application details are missing or invalid." },
       400,
     );
-  const { id, documents } = parsed.data;
-  const account = data.account;
-  if (documents.length && !(await isAdmin()))
-    return reply(
-      { error: "Admin sign-in required to attach test documents." },
-      401,
-    );
+  const { id } = parsed.data;
   try {
     const db = await database();
-    if (documents.length) {
-      const count = await db
-        .collection<{ _id: string; owner: string }>("test_documents")
-        .countDocuments({ _id: { $in: documents }, owner: ADMIN });
-      if (count !== documents.length)
-        return reply({ error: "Invalid test documents." }, 400);
-    }
+    const session = await findSession(
+      parsed.data.kyc.id,
+      parsed.data.kyc.secret,
+    );
+    if (!session || (session.applicationId && session.applicationId !== id))
+      return reply(
+        {
+          error:
+            "Your identity verification has expired. Go back to the documents step and take your photos again.",
+        },
+        400,
+      );
+    const data = clean({
+      ...parsed.data.data,
+      identity: !!session.files.front,
+      identityBack: !!session.files.back,
+      selfie: !!session.files.selfie,
+      addressProof: !!session.files.addressProof,
+    });
+    if (
+      !data ||
+      data.documentType !== session.documentType ||
+      data.country !== session.country ||
+      requiredKinds(data.documentType).some((k) => !session.files[k])
+    )
+      return reply(
+        { error: "Some application details are missing or invalid." },
+        400,
+      );
+    const account = data.account;
     const apps = db.collection<{
       _id: string;
       reference: string;
@@ -95,7 +113,7 @@ export async function POST(request: Request) {
       notes: string[];
       history: string[];
       emailId?: string;
-      documentIds?: string[];
+      kycSessionId: string;
     }>("demo_applications");
     const existing = await apps.findOne({ _id: id });
     if (existing)
@@ -127,7 +145,7 @@ export async function POST(request: Request) {
         created,
         account,
         emailStatus: "pending",
-        documentIds: documents,
+        kycSessionId: session._id,
         status: "Pending review",
         notes: [],
         history: ["Application received"],
@@ -137,6 +155,9 @@ export async function POST(request: Request) {
       if ((e as { code?: number }).code !== 11000) throw e;
       return reply({ reference, created, account, emailStatus: "pending" });
     }
+    await (
+      await sessions()
+    ).updateOne({ _id: session._id }, { $set: { applicationId: id } });
     let emailStatus = "unavailable";
     let emailId: string | undefined;
     if (process.env.RESEND_API_KEY) {

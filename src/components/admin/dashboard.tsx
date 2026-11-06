@@ -407,7 +407,9 @@ export function AdminDashboard({
                               </td>
                               <td>{r.country}</td>
                               <td>
-                                <span className="desk-account">{r.account}</span>
+                                <span className="desk-account">
+                                  {r.account}
+                                </span>
                               </td>
                               <td>{r.submitted}</td>
                               <td>
@@ -540,17 +542,40 @@ export function AdminDashboard({
                 {!app.demo && !app.documents.length && (
                   <p>No documents uploaded with this application.</p>
                 )}
+                {!app.demo && app.documents.some((d) => d.image) && (
+                  <div className="desk-photo-grid">
+                    {app.documents
+                      .filter((d) => d.image)
+                      .map((d) => (
+                        <a
+                          key={d.id}
+                          href={d.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="desk-photo"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={d.href} alt={d.kind} loading="lazy" />
+                          <span>{d.kind} ↗</span>
+                        </a>
+                      ))}
+                  </div>
+                )}
                 {!app.demo && (
                   <div className="desk-doc-buttons">
-                    {app.documents.map((d) => (
-                      <a
-                        className="desk-button"
-                        key={d.id}
-                        href={"/api/documents/" + d.id}
-                      >
-                        ▤ {d.kind} ↓
-                      </a>
-                    ))}
+                    {app.documents
+                      .filter((d) => !d.image)
+                      .map((d) => (
+                        <a
+                          className="desk-button"
+                          key={d.id}
+                          href={d.href}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          ▤ {d.kind} ↗
+                        </a>
+                      ))}
                   </div>
                 )}
                 {app.demo && (
@@ -572,7 +597,10 @@ export function AdminDashboard({
                     <h3>{preview}</h3>
                     <strong>{app.name}</strong>
                     <small>{app.id} · Fictional placeholder</small>
-                    <button className="desk-view" onClick={() => setPreview("")}>
+                    <button
+                      className="desk-view"
+                      onClick={() => setPreview("")}
+                    >
                       Close preview
                     </button>
                   </div>

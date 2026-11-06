@@ -1160,3 +1160,28 @@
     visibility: visible;
   }
 }
+.desk-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.desk-photo {
+  display: block;
+  border: 1px solid var(--ad-line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0a121c;
+}
+.desk-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.desk-photo span {
+  display: block;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: #c7d6e4;
+}

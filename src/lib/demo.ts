@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { documentOptions, needsBack } from "./kyc";
 export const STORAGE = "fc-capital-demo-v1";
 export type Application = {
   firstName: string;
@@ -44,6 +45,7 @@ export type Application = {
   documentType: string;
   identity: boolean;
   identityBack: boolean;
+  selfie: boolean;
   addressProof: boolean;
   accuracy: boolean;
   risk: boolean;
@@ -93,6 +95,7 @@ export const empty: Application = {
   documentType: "Passport",
   identity: false,
   identityBack: false,
+  selfie: false,
   addressProof: false,
   accuracy: false,
   risk: false,
@@ -208,9 +211,20 @@ export function schemaFor(step: number, data: Application) {
       });
     case 6:
       return z.object({
-        identity: yes,
-        addressProof: yes,
-        identityBack: data.documentType === "Passport" ? z.boolean() : yes,
+        documentType: z
+          .string()
+          .refine(
+            (v) => documentOptions(data.country).includes(v),
+            "Choose a document accepted for your country.",
+          ),
+        identity: z.boolean().refine(Boolean, "Photograph your document."),
+        identityBack: needsBack(data.documentType)
+          ? z.boolean().refine(Boolean, "Photograph the back of your document.")
+          : z.boolean(),
+        selfie: z.boolean().refine(Boolean, "Take your selfie."),
+        addressProof: z
+          .boolean()
+          .refine(Boolean, "Upload your proof of address."),
       });
     default:
       return z.object({ accuracy: yes, risk: yes, terms: yes });

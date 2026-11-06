@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, type FieldPath } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -7,12 +7,21 @@ import {
   ApplicationField,
   ApplicationCheckbox,
 } from "./onboarding/form-controls";
-import {
-  SampleDocumentCard,
-  type DocumentSlot,
-} from "./onboarding/sample-document-card";
 import { OnboardingCardHeading } from "./onboarding/card-heading";
-import { TestDocumentUpload } from "./test-document-upload";
+import {
+  KycFlow,
+  KycHandoff,
+  kycRequest,
+  uploadKyc,
+  type KycSessionRef,
+} from "./kyc/flow";
+import {
+  KYC_STORAGE,
+  MAX_KYC_BYTES,
+  documentOptions,
+  needsBack,
+  type KycStatus,
+} from "@/lib/kyc";
 import { Logo, DemoNotice, Modal, steps } from "./ui";
 import {
   empty,
@@ -44,12 +53,18 @@ const descriptions = [
   "Help us understand your financial profile.",
   "Tell us about your market experience.",
   "Choose the account you’d like to explore.",
-  "Add sample documents to complete your demo.",
+  "Verify your identity with your phone camera.",
   "One final look before your next step.",
 ];
 export default function Onboarding() {
   const router = useRouter();
-  const [uploadedDocs, setUploadedDocs] = useState<Record<string, string>>({});
+  const [kyc, setKyc] = useState<{
+    session: KycSessionRef;
+    status: KycStatus;
+  } | null>(null);
+  const [kycError, setKycError] = useState("");
+  const [addressBusy, setAddressBusy] = useState(false);
+  const [phone, setPhone] = useState(false);
   const [step, setStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [verified, setVerified] = useState("");
@@ -74,6 +89,94 @@ export default function Onboarding() {
     formState: { errors },
   } = useForm<Application>({ defaultValues: empty, shouldUnregister: false });
   const data = watch();
+  const applyKyc = useCallback(
+    (status: KycStatus) => {
+      setKyc((old) => (old ? { ...old, status } : old));
+      setValue("identity", !!status.captured.front);
+      setValue("identityBack", !!status.captured.back);
+      setValue("selfie", !!status.captured.selfie);
+      setValue("addressProof", !!status.captured.addressProof);
+    },
+    [setValue],
+  );
+  useEffect(() => {
+    setPhone(matchMedia("(pointer: coarse)").matches);
+  }, []);
+  useEffect(() => {
+    if (!ready || step !== 6) return;
+    const body = JSON.stringify({
+      documentType: data.documentType,
+      country: data.country,
+    });
+    if (!documentOptions(data.country).includes(data.documentType)) {
+      setValue("documentType", documentOptions(data.country)[0]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setKycError("");
+      try {
+        let stored: KycSessionRef | null = null;
+        try {
+          stored = JSON.parse(sessionStorage.getItem(KYC_STORAGE) || "null");
+        } catch {}
+        if (stored?.id && stored.secret) {
+          try {
+            const status = await kycRequest(
+              "/api/kyc/session/" + stored.id,
+              stored,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  "x-kyc-secret": stored.secret,
+                },
+                body,
+              },
+            );
+            if (cancelled) return;
+            setKyc({ session: stored, status });
+            applyKyc(status);
+            return;
+          } catch {
+            sessionStorage.removeItem(KYC_STORAGE);
+          }
+        }
+        const created = await kycRequest("/api/kyc/session", null, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        });
+        if (cancelled) return;
+        const session = { id: created.id!, secret: created.secret! };
+        sessionStorage.setItem(KYC_STORAGE, JSON.stringify(session));
+        setKyc({ session, status: created });
+        applyKyc(created);
+      } catch (e) {
+        if (!cancelled) setKycError((e as Error).message);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, step, data.documentType, data.country, setValue, applyKyc]);
+  async function uploadAddress(file: File | undefined) {
+    if (!file || !kyc) return;
+    if (file.size > MAX_KYC_BYTES) {
+      setKycError("Your file is larger than 4 MB. Choose a smaller file.");
+      return;
+    }
+    setAddressBusy(true);
+    setKycError("");
+    try {
+      applyKyc(await uploadKyc(kyc.session, "addressProof", file));
+      clearErrors("addressProof");
+    } catch (e) {
+      setKycError((e as Error).message);
+    } finally {
+      setAddressBusy(false);
+    }
+  }
   useEffect(() => {
     const draft = readDraft();
     if (draft) {
@@ -210,7 +313,7 @@ export default function Onboarding() {
         body: JSON.stringify({
           id,
           data: { ...getValues(), code: "" },
-          documents: Object.values(uploadedDocs),
+          kyc: kyc?.session,
         }),
       });
       const result = await response.json();
@@ -226,6 +329,7 @@ export default function Onboarding() {
       );
       sessionStorage.removeItem(STORAGE);
       sessionStorage.removeItem(key);
+      sessionStorage.removeItem(KYC_STORAGE);
       router.push("/application-received");
     } catch (error) {
       setNotice(
@@ -262,20 +366,6 @@ export default function Onboarding() {
       label={label}
       register={register}
       errors={errors}
-    />
-  );
-  const doc = (name: DocumentSlot, title: string, description: string) => (
-    <SampleDocumentCard
-      key={name}
-      name={name}
-      title={title}
-      description={description}
-      attached={data[name]}
-      hasError={!!errors[name]}
-      onToggle={() => {
-        setValue(name, !data[name]);
-        clearErrors(name);
-      }}
     />
   );
   return (
@@ -760,52 +850,95 @@ export default function Onboarding() {
             )}
             {step === 6 && (
               <>
-                <TestDocumentUpload
-                  onUploaded={(id, kind) => {
-                    setUploadedDocs((old) => ({ ...old, [kind]: id }));
-                    setValue(
-                      kind as "identity" | "identityBack" | "addressProof",
-                      true,
-                    );
-                  }}
-                />
                 <OnboardingCardHeading
                   icon={"▤"}
-                  title={"Your documents"}
-                  description={"Try the upload journey with safe sample files."}
+                  title={"Verify your identity"}
+                  description={
+                    "Photograph your document and take a quick selfie. The camera takes each photo automatically."
+                  }
                 />
-                <div className="info-note">
-                  No real files are selected, uploaded or stored. These buttons
-                  simulate document attachments.
+                {field(
+                  "documentType",
+                  "Identity document",
+                  documentOptions(data.country),
+                  "text",
+                  "Documents accepted for residents of " +
+                    (data.country || "your country") +
+                    ".",
+                )}
+                {kycError && (
+                  <div className="error-note" role="alert">
+                    {kycError}
+                  </div>
+                )}
+                {(errors.identity || errors.identityBack || errors.selfie) && (
+                  <div className="error-note" role="alert">
+                    {needsBack(data.documentType)
+                      ? "Photograph both sides of your document and take your selfie to continue."
+                      : "Photograph your passport and take your selfie to continue."}
+                  </div>
+                )}
+                {!kyc ? (
+                  !kycError && (
+                    <p className="quiet-note">Preparing secure verification…</p>
+                  )
+                ) : phone ? (
+                  <KycFlow
+                    session={kyc.session}
+                    status={kyc.status}
+                    onStatus={applyKyc}
+                  />
+                ) : (
+                  <KycHandoff
+                    session={kyc.session}
+                    status={kyc.status}
+                    onStatus={applyKyc}
+                  />
+                )}
+                <div className="divider" />
+                <div
+                  className={"kyc-file" + (data.addressProof ? " done" : "")}
+                >
+                  <span className="kyc-step-icon" aria-hidden="true">
+                    {data.addressProof ? "✓" : "⌂"}
+                  </span>
+                  <div>
+                    <strong>Proof of address</strong>
+                    <small>
+                      {data.addressProof
+                        ? "Uploaded"
+                        : "A utility bill or bank statement from the last 3 months. PDF, JPG or PNG, up to 4 MB."}
+                    </small>
+                  </div>
+                  <label
+                    className={
+                      "button " + (data.addressProof ? "secondary" : "primary")
+                    }
+                  >
+                    {addressBusy
+                      ? "Uploading…"
+                      : data.addressProof
+                        ? "Replace"
+                        : "Upload file"}
+                    <input
+                      type="file"
+                      accept="application/pdf,image/jpeg,image/png"
+                      disabled={!kyc || addressBusy}
+                      onChange={(e) => {
+                        void uploadAddress(e.target.files?.[0]);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
                 </div>
-                {field("documentType", "Identity document type", [
-                  "Passport",
-                  "National ID",
-                  "Driving licence",
-                ])}
-                <div className="upload-grid">
-                  {doc(
-                    "identity",
-                    data.documentType === "Passport"
-                      ? "Identity document"
-                      : "Identity document · front",
-                    "A fictional identity document preview.",
-                  )}
-                  {data.documentType !== "Passport" &&
-                    doc(
-                      "identityBack",
-                      "Identity document · back",
-                      "The reverse side of the sample document.",
-                    )}
-                  {doc(
-                    "addressProof",
-                    "Proof of address",
-                    "A fictional statement or utility bill.",
-                  )}
-                </div>
+                {errors.addressProof && (
+                  <p className="field-error" role="alert">
+                    {errors.addressProof.message}
+                  </p>
+                )}
                 <p className="quiet-note">
-                  Production file types, size limits, document requirements and
-                  secure storage will be confirmed separately.
+                  Your photos are sent over an encrypted connection, stored
+                  privately and only visible to the FC Capital review team.
                 </p>
               </>
             )}
@@ -901,11 +1034,24 @@ export default function Onboarding() {
                     "Documents",
                     6,
                     [
-                      ["Identity", data.documentType + " · sample attached"],
-                      ...(data.documentType !== "Passport"
-                        ? [["Reverse side", "Sample attached"]]
+                      [
+                        "Identity",
+                        data.documentType +
+                          (data.identity ? " · photographed" : " · missing"),
+                      ],
+                      ...(needsBack(data.documentType)
+                        ? [
+                            [
+                              "Back side",
+                              data.identityBack ? "Photographed" : "Missing",
+                            ],
+                          ]
                         : []),
-                      ["Address", "Sample attached"],
+                      ["Selfie", data.selfie ? "Captured" : "Missing"],
+                      [
+                        "Proof of address",
+                        data.addressProof ? "Uploaded" : "Missing",
+                      ],
                     ],
                   ],
                 ].map(([title, target, rows]) => (
@@ -1020,7 +1166,8 @@ export default function Onboarding() {
                 className="button primary"
                 onClick={() => {
                   reset(empty);
-                  setUploadedDocs({});
+                  setKyc(null);
+                  sessionStorage.removeItem(KYC_STORAGE);
                   setStep(0);
                   setVerified("");
                   setQuiz(0);

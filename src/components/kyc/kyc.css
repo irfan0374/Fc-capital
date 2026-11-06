@@ -1,0 +1,324 @@
+.kyc-flow {
+  display: grid;
+  gap: 16px;
+}
+.kyc-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.kyc-checklist li {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #2c4152;
+  border-radius: 12px;
+  background: #0d1824;
+}
+.kyc-checklist li.current {
+  border-color: #3b9195;
+}
+.kyc-checklist li.done {
+  background: linear-gradient(145deg, #153338, #10232b);
+  border-color: #3b9195;
+}
+.kyc-checklist strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.kyc-checklist small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.kyc-checklist .button {
+  min-height: 40px;
+  padding: 9px 16px;
+  font-size: 11px;
+}
+.kyc-step-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid #3a5568;
+  color: var(--cyan);
+  font-weight: 700;
+}
+li.done .kyc-step-icon {
+  background: var(--cyan);
+  color: #06141c;
+  border-color: var(--cyan);
+}
+.kyc-camera {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.kyc-camera video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.kyc-camera.selfie video,
+.kyc-review img.mirror {
+  transform: scaleX(-1);
+}
+.kyc-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.kyc-camera header,
+.kyc-camera footer {
+  position: relative;
+  z-index: 2;
+  padding: max(18px, env(safe-area-inset-top)) 20px 18px;
+  background: linear-gradient(#000c, #0000);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.kyc-camera footer {
+  padding: 28px 20px max(24px, env(safe-area-inset-bottom));
+  background: linear-gradient(#0000, #000d);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.kyc-camera header strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+}
+.kyc-camera header small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #c9d6e2;
+  line-height: 1.5;
+}
+.kyc-camera header button {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #fff5;
+  background: #0007;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+}
+.kyc-camera footer p {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.kyc-camera footer p small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #ffd98a;
+}
+.kyc-camera .kyc-error {
+  color: #ffd3d3;
+  font-weight: 400;
+  font-size: 13px;
+  max-width: 420px;
+}
+.kyc-card-guide,
+.kyc-face-guide {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 200vmax #000a;
+  pointer-events: none;
+}
+.kyc-card-guide {
+  width: min(88vw, 640px, calc(58vh * 1.586));
+  aspect-ratio: 1.586;
+  border-radius: 14px;
+  border: 2px solid #fffc;
+}
+.kyc-card-guide.passport {
+  aspect-ratio: 1.42;
+  width: min(88vw, 640px, calc(58vh * 1.42));
+}
+.kyc-card-guide i {
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  border: 3px solid var(--cyan, #45d6e8);
+  opacity: var(--progress, 0);
+  transition: opacity 0.15s;
+}
+.kyc-face-guide {
+  width: min(64vw, 300px, 40vh);
+  aspect-ratio: 0.78;
+  border-radius: 50%;
+  border: 3px solid #fffc;
+  transition: border-color 0.2s;
+}
+.kyc-face-guide.blink,
+.kyc-face-guide.turn,
+.kyc-face-guide.back {
+  border-color: #ffd98a;
+}
+.kyc-face-guide.done {
+  border-color: var(--cyan, #45d6e8);
+}
+.kyc-liveness {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.kyc-liveness li {
+  width: 34px;
+  height: 4px;
+  border-radius: 2px;
+  background: #fff4;
+}
+.kyc-liveness li.active {
+  background: #ffd98a;
+}
+.kyc-liveness li.complete {
+  background: var(--cyan, #45d6e8);
+}
+.kyc-review {
+  background: #060b12;
+}
+.kyc-review img {
+  position: relative;
+  z-index: 1;
+  max-width: min(92vw, 720px);
+  max-height: 60vh;
+  margin: auto;
+  border-radius: 12px;
+  object-fit: contain;
+}
+.kyc-actions {
+  display: flex;
+  gap: 12px;
+  width: min(100%, 420px);
+}
+.kyc-actions .button {
+  flex: 1;
+}
+.kyc-qr {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 22px;
+  border: 1px solid #2c4152;
+  border-radius: 12px;
+  background: #0d1824;
+}
+.kyc-qr img {
+  width: 168px;
+  height: 168px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px;
+}
+.kyc-qr h3 {
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+.kyc-qr ol {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.kyc-qr .kyc-live {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--cyan);
+}
+.kyc-file {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px dashed #40586c;
+  border-radius: 12px;
+  background: #0d1824;
+}
+.kyc-file.done {
+  border-style: solid;
+  border-color: #3b9195;
+}
+.kyc-file strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.kyc-file small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.kyc-file label.button {
+  cursor: pointer;
+  min-height: 40px;
+  padding: 9px 16px;
+  font-size: 11px;
+}
+.kyc-file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.kyc-file label:focus-within {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+@media (max-width: 560px) {
+  .kyc-checklist li,
+  .kyc-file {
+    grid-template-columns: 34px 1fr;
+  }
+  .kyc-checklist li > .button,
+  .kyc-file > label {
+    grid-column: 1 / -1;
+  }
+  .kyc-step-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .kyc-qr {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .kyc-qr ol {
+    text-align: left;
+  }
+}

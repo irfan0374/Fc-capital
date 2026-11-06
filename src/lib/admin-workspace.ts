@@ -14,7 +14,7 @@ export type ReviewApplication = {
   history: string[];
   demo: boolean;
   data: Partial<Application>;
-  documents: { id: string; kind: string }[];
+  documents: { id: string; kind: string; href: string; image: boolean }[];
 };
 export const reviewStatuses: ReviewStatus[] = [
   "Pending review",

@@ -9,6 +9,8 @@ import {
   type ReviewStatus,
 } from "@/lib/admin-workspace";
 import type { Application } from "@/lib/demo";
+import { kycKinds, kycLabels } from "@/lib/kyc";
+import type { KycSession } from "@/lib/server/kyc";
 export const dynamic = "force-dynamic";
 type Stored = {
   _id: string;
@@ -20,6 +22,7 @@ type Stored = {
   notes?: string[];
   history?: string[];
   documentIds?: string[];
+  kycSessionId?: string;
 };
 async function load(): Promise<{ rows: ReviewApplication[]; error: string }> {
   try {
@@ -38,6 +41,18 @@ async function load(): Promise<{ rows: ReviewApplication[]; error: string }> {
           .toArray()
       : [];
     const kinds = new Map(docs.map((d) => [d._id, d.kind]));
+    const kycIds = apps.flatMap((a) =>
+      a.kycSessionId ? [a.kycSessionId] : [],
+    );
+    const kyc = new Map(
+      (kycIds.length
+        ? await db
+            .collection<KycSession>("kyc_sessions")
+            .find({ _id: { $in: kycIds } }, { projection: { files: 1 } })
+            .toArray()
+        : []
+      ).map((k) => [k._id, k.files]),
+    );
     return {
       error: "",
       rows: apps.map((a) => {
@@ -59,10 +74,27 @@ async function load(): Promise<{ rows: ReviewApplication[]; error: string }> {
           history: a.history || ["Application received"],
           demo: false,
           data,
-          documents: (a.documentIds || []).map((id) => ({
-            id,
-            kind: kinds.get(id) || "document",
-          })),
+          documents: [
+            ...kycKinds.flatMap((kind) => {
+              const file = a.kycSessionId && kyc.get(a.kycSessionId)?.[kind];
+              return file
+                ? [
+                    {
+                      id: kind,
+                      kind: kycLabels[kind],
+                      href: `/api/kyc/file/${a.kycSessionId}/${kind}`,
+                      image: file.contentType.startsWith("image/"),
+                    },
+                  ]
+                : [];
+            }),
+            ...(a.documentIds || []).map((id) => ({
+              id,
+              kind: kinds.get(id) || "document",
+              href: "/api/documents/" + id,
+              image: false,
+            })),
+          ],
         };
       }),
     };

@@ -57,10 +57,10 @@ export function Modal({
 export function DemoNotice() {
   return (
     <div className="demo-notice">
-      <span className="status-dot" /> INTERACTIVE DEMO{" "}
+      <span className="status-dot" /> PREVIEW{" "}
       <span>
-        Fictional data only. Submission saves a test record and attempts an
-        admin email. No real documents.
+        Email verification uses demo code 246810. Your documents are stored
+        privately and only visible to the FC Capital review team.
       </span>
     </div>
   );
