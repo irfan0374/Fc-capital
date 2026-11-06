@@ -1,14 +1,89 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { logout, updateApplication } from "@/app/admin/actions";
+import { logout, reviewDocument, updateApplication } from "@/app/admin/actions";
 import {
   detailGroups,
   reviewStatuses,
+  type DocReview,
   type ReviewApplication,
   type ReviewStatus,
 } from "@/lib/admin-workspace";
 import { AdminBrand, StatusBadge, MetricCard, DetailGroup } from "./shared";
+import type { KycKind } from "@/lib/kyc";
+type Doc = ReviewApplication["documents"][number];
+const digits = (v: string) => v.replace(/\D/g, "");
+function matches(r: ReviewApplication, query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const phone = String(r.data.phone || "");
+  return (
+    [
+      r.name,
+      r.email,
+      r.reference,
+      phone,
+      String(r.data.documentType || ""),
+    ].some((v) => v.toLowerCase().includes(q)) ||
+    (digits(q).length >= 3 && digits(phone).includes(digits(q)))
+  );
+}
+function Lightbox({
+  doc,
+  name,
+  page,
+  onClose,
+}: {
+  doc: Doc;
+  name: string;
+  page?: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className={"desk-lightbox" + (page ? " page" : "")}
+      role="dialog"
+      aria-label={doc.kind}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <header>
+        <div className="desk-lightbox-title">
+          <strong>{doc.kind}</strong>
+          <small>{name}</small>
+        </div>
+        <div>
+          {doc.href && (
+            <a href={doc.href} target="_blank" rel="noreferrer">
+              Open full size ↗
+            </a>
+          )}
+          <button className="desk-button" onClick={onClose} autoFocus>
+            ✕ Close
+          </button>
+        </div>
+      </header>
+      {doc.href ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={doc.href} alt={doc.kind} onClick={onClose} />
+      ) : (
+        <div className="desk-file-preview">
+          <p>SAMPLE / NOT A VALID DOCUMENT</p>
+          <h3>{doc.kind}</h3>
+          <strong>{name}</strong>
+        </div>
+      )}
+    </div>
+  );
+}
+const docProgress = (a: ReviewApplication) => {
+  const docs = a.documents.filter((d) => d.reviewable);
+  return {
+    total: docs.length,
+    approved: docs.filter((d) => a.reviews[d.id]?.status === "Approved").length,
+  };
+};
 const show = (v: unknown) =>
   v === true ? "Yes" : v === false ? "No" : String(v ?? "").trim() || "—";
 export function AdminDashboard({
@@ -29,35 +104,85 @@ export function AdminDashboard({
   const [note, setNote] = useState("");
   const [notice, setNotice] = useState(error);
   const [mobile, setMobile] = useState(false);
-  const [preview, setPreview] = useState("");
+  const [docEdit, setDocEdit] = useState<string | null>(null);
+  const [rejecting, setRejecting] = useState<string | null>(null);
+  const [reason, setReason] = useState("");
+  const [lightbox, setLightbox] = useState<Doc | null>(null);
+  const [pageView, setPageView] = useState<{ doc: Doc; name: string } | null>(
+    null,
+  );
+  const [changing, setChanging] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const app = rows.find((r) => r.id === selected);
   const filtered = rows.filter(
     (r) =>
       (status === "All" || r.status === status) &&
       (account === "All" || r.account === account) &&
-      [r.name, r.email, r.reference].some((v) =>
-        v.toLowerCase().includes(search.toLowerCase()),
-      ),
+      (section !== "Documents" || r.documents.length > 0) &&
+      matches(r, search),
   );
   const pages = Math.max(1, Math.ceil(filtered.length / 5));
   const current = Math.min(page, pages);
   const shown = filtered.slice((current - 1) * 5, current * 5);
   useEffect(() => {
+    if (!pageView) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPageView(null);
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, [pageView]);
+  useEffect(() => {
     if (selected) dialog.current?.showModal();
     else dialog.current?.close();
   }, [selected]);
+  function resetDrawer() {
+    setConfirm(null);
+    setNote("");
+    setDocEdit(null);
+    setRejecting(null);
+    setReason("");
+    setLightbox(null);
+    setChanging(false);
+  }
   function close() {
     setSelected(null);
-    setConfirm(null);
-    setPreview("");
-    setNote("");
+    resetDrawer();
   }
   function open(id: string) {
     setSelected(id);
-    setConfirm(null);
-    setPreview("");
-    setNote("");
+    resetDrawer();
+  }
+  async function decide(
+    target: ReviewApplication,
+    doc: Doc,
+    review: DocReview,
+  ) {
+    const before = rows;
+    const label =
+      doc.kind +
+      " " +
+      review.status.toLowerCase() +
+      (review.reason ? ": " + review.reason : "");
+    setRows(
+      rows.map((r) =>
+        r.id === target.id
+          ? {
+              ...r,
+              reviews: { ...r.reviews, [doc.id]: review },
+              history: [...r.history, label],
+            }
+          : r,
+      ),
+    );
+    setDocEdit(null);
+    setRejecting(null);
+    setReason("");
+    if (target.demo) return;
+    try {
+      await reviewDocument(target.id, doc.id as KycKind, review);
+    } catch {
+      setRows(before);
+      setNotice("Could not save the document review. Please try again.");
+    }
   }
   async function save(
     target: ReviewApplication,
@@ -80,6 +205,7 @@ export function AdminDashboard({
     if (!app || !confirm) return;
     const status = confirm;
     setConfirm(null);
+    setChanging(false);
     const ok = await save(
       app,
       { status },
@@ -299,7 +425,7 @@ export function AdminDashboard({
                     <span aria-hidden="true">⌕</span>
                     <input
                       aria-label="Search applications"
-                      placeholder="Search name, email or reference…"
+                      placeholder="Search name, email, phone or reference…"
                       value={search}
                       onChange={(e) => {
                         setSearch(e.target.value);
@@ -351,26 +477,78 @@ export function AdminDashboard({
                     </button>
                   </div>
                 ) : section === "Documents" ? (
-                  <div className="desk-document-grid">
+                  <div className="desk-doc-library">
                     {shown.map((r) => (
-                      <button
-                        key={r.id}
-                        className="desk-document"
-                        onClick={() => {
-                          open(r.id);
-                          setPreview("Identity document");
-                        }}
-                      >
-                        <span>▤</span>
-                        <strong>{r.name}</strong>
-                        <small>
-                          {r.reference} ·{" "}
-                          {r.demo
-                            ? "2 sample documents"
-                            : r.documents.length + " documents"}
-                        </small>
-                        <b>View documents ↗</b>
-                      </button>
+                      <section key={r.id} className="desk-doc-person">
+                        <header>
+                          <div>
+                            <strong>
+                              {r.name}
+                              {r.demo && (
+                                <small className="desk-tag">Demo</small>
+                              )}
+                            </strong>
+                            <span className="desk-contact">
+                              <span>✉ {r.email || "—"}</span>
+                              <span>☏ {show(r.data.phone)}</span>
+                              <span className="desk-reference">
+                                {r.reference}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="desk-doc-person-side">
+                            {docProgress(r).total > 0 && (
+                              <small>
+                                {docProgress(r).approved}/{docProgress(r).total}{" "}
+                                approved
+                              </small>
+                            )}
+                            <button
+                              className="desk-view"
+                              onClick={() => open(r.id)}
+                            >
+                              Review ↗
+                            </button>
+                          </div>
+                        </header>
+                        <div className="desk-doc-strip">
+                          {r.documents.map((d) => (
+                            <button
+                              key={d.id}
+                              type="button"
+                              className="desk-doc-tile"
+                              onClick={() =>
+                                d.image
+                                  ? setPageView({ doc: d, name: r.name })
+                                  : window.open(d.href, "_blank")
+                              }
+                            >
+                              <span className="desk-doc-thumb">
+                                {d.image && d.href ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={d.href}
+                                    alt={d.kind}
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <span>{d.image ? "SAMPLE" : "PDF"}</span>
+                                )}
+                              </span>
+                              <span className="desk-doc-meta">
+                                <strong>{d.kind}</strong>
+                                {d.reviewable && (
+                                  <StatusBadge
+                                    status={
+                                      r.reviews[d.id]?.status || "Pending"
+                                    }
+                                  />
+                                )}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </section>
                     ))}
                   </div>
                 ) : (
@@ -403,9 +581,15 @@ export function AdminDashboard({
                               </td>
                               <td>
                                 <strong>{r.name}</strong>
-                                <small>{r.email}</small>
+                                <span className="desk-contact">
+                                  <span>✉ {r.email || "—"}</span>
+                                  <span>☏ {show(r.data.phone)}</span>
+                                </span>
                               </td>
-                              <td>{r.country}</td>
+                              <td>
+                                {r.country}
+                                <small>{show(r.data.documentType)}</small>
+                              </td>
                               <td>
                                 <span className="desk-account">
                                   {r.account}
@@ -444,7 +628,8 @@ export function AdminDashboard({
                             <StatusBadge status={r.status} />
                           </div>
                           <strong>{r.name}</strong>
-                          <small>{r.email}</small>
+                          <small>✉ {r.email || "—"}</small>
+                          <small>☏ {show(r.data.phone)}</small>
                           <div>
                             <span>
                               {r.account} · {r.country}
@@ -495,7 +680,12 @@ export function AdminDashboard({
         aria-label="Application details"
         className="desk-drawer"
         ref={dialog}
-        onCancel={close}
+        onCancel={(e) => {
+          if (lightbox) {
+            e.preventDefault();
+            setLightbox(null);
+          } else close();
+        }}
         onClick={(e) => {
           if (e.target === e.currentTarget) close();
         }}
@@ -508,6 +698,10 @@ export function AdminDashboard({
                   {app.reference} / APPLICATION DETAILS
                 </p>
                 <h2>{app.name}</h2>
+                <span className="desk-contact">
+                  <span>✉ {app.email || "—"}</span>
+                  <span>☏ {show(app.data.phone)}</span>
+                </span>
                 <StatusBadge status={app.status} />
               </div>
               <button
@@ -539,72 +733,132 @@ export function AdminDashboard({
                 </DetailGroup>
               ))}
               <DetailGroup title="06 / Documents">
-                {!app.demo && !app.documents.length && (
+                {!app.documents.length && (
                   <p>No documents uploaded with this application.</p>
                 )}
-                {!app.demo && app.documents.some((d) => d.image) && (
-                  <div className="desk-photo-grid">
-                    {app.documents
-                      .filter((d) => d.image)
-                      .map((d) => (
-                        <a
-                          key={d.id}
-                          href={d.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="desk-photo"
+                {docProgress(app).total > 0 && (
+                  <p className="desk-doc-progress">
+                    {docProgress(app).approved} of {docProgress(app).total}{" "}
+                    documents approved
+                  </p>
+                )}
+                <div className="desk-doc-grid">
+                  {app.documents.map((d) => {
+                    const review = app.reviews[d.id];
+                    const editing =
+                      d.reviewable && (!review || docEdit === d.id);
+                    return (
+                      <article className="desk-doc-card" key={d.id}>
+                        <button
+                          type="button"
+                          className="desk-doc-thumb"
+                          aria-label={"View " + d.kind}
+                          onClick={() =>
+                            d.image
+                              ? setLightbox(d)
+                              : window.open(d.href, "_blank")
+                          }
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={d.href} alt={d.kind} loading="lazy" />
-                          <span>{d.kind} ↗</span>
-                        </a>
-                      ))}
-                  </div>
-                )}
-                {!app.demo && (
-                  <div className="desk-doc-buttons">
-                    {app.documents
-                      .filter((d) => !d.image)
-                      .map((d) => (
-                        <a
-                          className="desk-button"
-                          key={d.id}
-                          href={d.href}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          ▤ {d.kind} ↗
-                        </a>
-                      ))}
-                  </div>
-                )}
-                {app.demo && (
-                  <div className="desk-doc-buttons">
-                    {["Identity document", "Proof of address"].map((t) => (
-                      <button
-                        className="desk-button"
-                        key={t}
-                        onClick={() => setPreview(preview === t ? "" : t)}
-                      >
-                        ▤ {t} ↗
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {app.demo && preview && (
-                  <div className="desk-file-preview">
-                    <p>SAMPLE / NOT A VALID DOCUMENT</p>
-                    <h3>{preview}</h3>
-                    <strong>{app.name}</strong>
-                    <small>{app.id} · Fictional placeholder</small>
-                    <button
-                      className="desk-view"
-                      onClick={() => setPreview("")}
-                    >
-                      Close preview
-                    </button>
-                  </div>
-                )}
+                          {d.image && d.href ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={d.href} alt={d.kind} />
+                          ) : (
+                            <span>{d.image ? "SAMPLE" : "PDF"}</span>
+                          )}
+                        </button>
+                        <div className="desk-doc-meta">
+                          <strong>{d.kind}</strong>
+                          {d.reviewable && (
+                            <StatusBadge status={review?.status || "Pending"} />
+                          )}
+                        </div>
+                        {review?.reason && (
+                          <p className="desk-doc-reason">{review.reason}</p>
+                        )}
+                        {editing ? (
+                          rejecting === d.id ? (
+                            <div className="desk-doc-reject">
+                              <label htmlFor={"reason-" + d.id}>
+                                Reason for rejecting
+                              </label>
+                              <input
+                                id={"reason-" + d.id}
+                                value={reason}
+                                maxLength={300}
+                                placeholder="e.g. Blurry, expired, details not readable"
+                                onChange={(e) => setReason(e.target.value)}
+                                autoFocus
+                              />
+                              <div className="desk-doc-actions">
+                                <button
+                                  className="desk-button"
+                                  onClick={() => {
+                                    setRejecting(null);
+                                    setReason("");
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  className="desk-button danger"
+                                  disabled={!reason.trim()}
+                                  onClick={() =>
+                                    decide(app, d, {
+                                      status: "Rejected",
+                                      reason: reason.trim(),
+                                    })
+                                  }
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="desk-doc-actions">
+                              <button
+                                className="desk-button danger"
+                                onClick={() => {
+                                  setRejecting(d.id);
+                                  setReason("");
+                                }}
+                              >
+                                Reject
+                              </button>
+                              <button
+                                className="desk-button primary"
+                                onClick={() =>
+                                  decide(app, d, { status: "Approved" })
+                                }
+                              >
+                                Approve
+                              </button>
+                              {review && (
+                                <button
+                                  className="desk-link"
+                                  onClick={() => setDocEdit(null)}
+                                >
+                                  Cancel
+                                </button>
+                              )}
+                            </div>
+                          )
+                        ) : (
+                          d.reviewable && (
+                            <button
+                              className="desk-link"
+                              onClick={() => {
+                                setDocEdit(d.id);
+                                setRejecting(null);
+                              }}
+                            >
+                              ✎ Edit decision
+                            </button>
+                          )
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
               </DetailGroup>
               <DetailGroup title="07 / Internal notes">
                 <label htmlFor="review-note">Add a review note</label>
@@ -666,32 +920,83 @@ export function AdminDashboard({
                     Confirm status change
                   </button>
                 </div>
+              ) : (app.status === "Approved" || app.status === "Rejected") &&
+                !changing ? (
+                <div className="desk-final">
+                  <span>
+                    Application <StatusBadge status={app.status} />
+                  </span>
+                  <button
+                    className="desk-link"
+                    onClick={() => setChanging(true)}
+                  >
+                    ✎ Change status
+                  </button>
+                </div>
               ) : (
                 <>
-                  <button
-                    className="desk-button danger"
-                    onClick={() => setConfirm("Rejected")}
-                  >
-                    Reject
-                  </button>
-                  <button
-                    className="desk-button"
-                    onClick={() => setConfirm("Needs information")}
-                  >
-                    Request information
-                  </button>
-                  <button
-                    className="desk-button primary"
-                    onClick={() => setConfirm("Approved")}
-                  >
-                    Approve application
-                  </button>
+                  {docProgress(app).approved < docProgress(app).total && (
+                    <p className="desk-lock">
+                      Approve all documents to enable approval (
+                      {docProgress(app).approved}/{docProgress(app).total})
+                    </p>
+                  )}
+                  {changing && (
+                    <button
+                      className="desk-link"
+                      onClick={() => setChanging(false)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  {app.status !== "Rejected" && (
+                    <button
+                      className="desk-button danger"
+                      onClick={() => setConfirm("Rejected")}
+                    >
+                      Reject
+                    </button>
+                  )}
+                  {app.status !== "Needs information" && (
+                    <button
+                      className="desk-button"
+                      onClick={() => setConfirm("Needs information")}
+                    >
+                      Request information
+                    </button>
+                  )}
+                  {app.status !== "Approved" && (
+                    <button
+                      className="desk-button primary"
+                      disabled={
+                        docProgress(app).approved < docProgress(app).total
+                      }
+                      onClick={() => setConfirm("Approved")}
+                    >
+                      Approve application
+                    </button>
+                  )}
                 </>
               )}
             </footer>
+            {lightbox && (
+              <Lightbox
+                doc={lightbox}
+                name={app.name}
+                onClose={() => setLightbox(null)}
+              />
+            )}
           </div>
         )}
       </dialog>
+      {pageView && !selected && (
+        <Lightbox
+          doc={pageView.doc}
+          name={pageView.name}
+          page
+          onClose={() => setPageView(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { sample, type Application } from "./demo";
+import { kycLabels } from "./kyc";
 export type ReviewStatus =
   "Pending review" | "Needs information" | "Approved" | "Rejected";
+export type DocReview = { status: "Approved" | "Rejected"; reason?: string };
 export type ReviewApplication = {
   id: string;
   reference: string;
@@ -14,7 +16,14 @@ export type ReviewApplication = {
   history: string[];
   demo: boolean;
   data: Partial<Application>;
-  documents: { id: string; kind: string; href: string; image: boolean }[];
+  documents: {
+    id: string;
+    kind: string;
+    href: string;
+    image: boolean;
+    reviewable: boolean;
+  }[];
+  reviews: Partial<Record<string, DocReview>>;
 };
 export const reviewStatuses: ReviewStatus[] = [
   "Pending review",
@@ -75,7 +84,24 @@ export const demoApplications: ReviewApplication[] = demoRows.map((r) => {
     reference: r.id,
     status: r.status as ReviewStatus,
     demo: true,
-    documents: [],
+    documents: (["front", "back", "selfie", "addressProof"] as const).map(
+      (id) => ({
+        id,
+        kind: kycLabels[id],
+        href: "",
+        image: true,
+        reviewable: true,
+      }),
+    ),
+    reviews:
+      r.status === "Approved"
+        ? Object.fromEntries(
+            ["front", "back", "selfie", "addressProof"].map((k) => [
+              k,
+              { status: "Approved" as const },
+            ]),
+          )
+        : {},
     data: {
       ...sample,
       firstName,

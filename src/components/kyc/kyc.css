@@ -180,8 +180,7 @@ li.done .kyc-step-icon {
   transition: border-color 0.2s;
 }
 .kyc-face-guide.blink,
-.kyc-face-guide.turn,
-.kyc-face-guide.back {
+.kyc-face-guide.look {
   border-color: #ffd98a;
 }
 .kyc-face-guide.done {

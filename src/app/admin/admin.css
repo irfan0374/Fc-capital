@@ -1160,28 +1160,266 @@
     visibility: visible;
   }
 }
-.desk-photo-grid {
+.desk-doc-progress {
+  font-size: 12px;
+  color: var(--ad-muted);
+  margin-bottom: 14px;
+}
+.desk-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.desk-doc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ad-line);
+  border-radius: 12px;
+  background: #0a121c;
+}
+.desk-doc-thumb {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #142131;
+  color: #8da8c3;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  cursor: zoom-in;
+}
+.desk-doc-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+.desk-doc-thumb:hover img {
+  transform: scale(1.04);
+}
+.desk-doc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.desk-doc-meta strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.desk-doc-reason {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #ffc9c9;
+  background: #2a1820;
+  border: 1px solid #5a2f38;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.desk-doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.desk-doc-actions .desk-button {
+  flex: 1;
+  justify-content: center;
+  font-size: 11px;
+  padding: 8px 10px;
+}
+.desk-doc-reject {
+  display: grid;
+  gap: 8px;
+}
+.desk-doc-reject label {
+  font-size: 11px;
+  color: var(--ad-muted);
+}
+.desk-doc-reject input {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--ad-line);
+  background: #111d2a;
+  color: #edf4fa;
+  font: inherit;
+  font-size: 12px;
+}
+.desk-link {
+  align-self: flex-start;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: #8fdbe6;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.desk-link:hover {
+  text-decoration: underline;
+}
+.desk-final {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  font-size: 13px;
+}
+.desk-final > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.desk-lock {
+  margin-right: auto;
+  align-self: center;
+  font-size: 11px;
+  color: #ffd98a;
+}
+.desk-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.desk-lightbox {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: #050a10f2;
+  backdrop-filter: blur(4px);
+}
+.desk-lightbox header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--ad-line);
+}
+.desk-lightbox header div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #8fdbe6;
+}
+.desk-lightbox > img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+  padding: 20px;
+}
+.desk-lightbox.page {
+  position: fixed;
+  z-index: 60;
+}
+.desk-lightbox-title small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--ad-muted);
+}
+.desk-lightbox > img {
+  cursor: zoom-out;
+}
+.desk-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #a9bccf;
+}
+.desk-drawer-inner > header .desk-contact {
+  margin: -6px 0 12px;
+  font-size: 12px;
+}
+.admin-ui td > small {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--ad-muted);
+}
+.desk-tag {
+  margin-left: 8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #1a283a;
+  color: #a7e5ed;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.desk-doc-library {
+  display: grid;
+  gap: 16px;
+  padding: 0 24px 8px;
+}
+.desk-doc-person {
+  border: 1px solid var(--ad-line);
+  border-radius: 12px;
+  padding: 16px;
+  background: #0d1622;
+}
+.desk-doc-person > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.desk-doc-person > header strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.desk-doc-person-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--ad-muted);
+  white-space: nowrap;
+}
+.desk-doc-strip {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
-  margin-bottom: 14px;
 }
-.desk-photo {
-  display: block;
+.desk-doc-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
   border: 1px solid var(--ad-line);
   border-radius: 10px;
-  overflow: hidden;
   background: #0a121c;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: zoom-in;
 }
-.desk-photo img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+.desk-doc-tile .desk-doc-meta strong {
+  font-size: 12px;
 }
-.desk-photo span {
-  display: block;
-  padding: 8px 10px;
-  font-size: 11px;
-  color: #c7d6e4;
+.desk-lightbox .desk-file-preview {
+  margin: auto;
+}
+@media (max-width: 760px) {
+  .desk-final {
+    flex-wrap: wrap;
+  }
+  .desk-lock {
+    flex-basis: 100%;
+  }
 }

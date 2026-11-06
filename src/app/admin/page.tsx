@@ -23,6 +23,7 @@ type Stored = {
   history?: string[];
   documentIds?: string[];
   kycSessionId?: string;
+  reviews?: ReviewApplication["reviews"];
 };
 async function load(): Promise<{ rows: ReviewApplication[]; error: string }> {
   try {
@@ -84,6 +85,7 @@ async function load(): Promise<{ rows: ReviewApplication[]; error: string }> {
                       kind: kycLabels[kind],
                       href: `/api/kyc/file/${a.kycSessionId}/${kind}`,
                       image: file.contentType.startsWith("image/"),
+                      reviewable: true,
                     },
                   ]
                 : [];
@@ -93,8 +95,10 @@ async function load(): Promise<{ rows: ReviewApplication[]; error: string }> {
               kind: kinds.get(id) || "document",
               href: "/api/documents/" + id,
               image: false,
+              reviewable: false,
             })),
           ],
+          reviews: a.reviews || {},
         };
       }),
     };

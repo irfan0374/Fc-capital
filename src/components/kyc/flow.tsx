@@ -51,7 +51,7 @@ const copy: Record<
   ],
   selfie: () => [
     "Selfie",
-    "A quick face check: look at the camera, blink, then turn your head.",
+    "A quick face check: blink, then look at the camera.",
   ],
 };
 export function KycFlow({

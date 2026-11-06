@@ -24,6 +24,12 @@ function useCamera(facingMode: "environment" | "user") {
             height: { ideal: 1080 },
           },
         });
+        const track = stream.getVideoTracks()[0];
+        await track
+          ?.applyConstraints({
+            advanced: [{ focusMode: "continuous" } as MediaTrackConstraintSet],
+          })
+          .catch(() => {});
         if (cancelled || !video.current) return;
         video.current.srcObject = stream;
         await video.current.play();
@@ -71,40 +77,90 @@ function snapshot(v: HTMLVideoElement, r: Rect, maxWidth: number) {
     canvas.toBlob((b) => (b ? resolve(b) : reject()), "image/jpeg", 0.9),
   );
 }
-// Brightness, contrast and sharpness (variance of the Laplacian) of a small grayscale copy.
+const PAD = 0.08;
+const expand = (r: Rect, v: HTMLVideoElement): Rect => {
+  const x = Math.max(0, r.x - r.w * PAD);
+  const y = Math.max(0, r.y - r.h * PAD);
+  return {
+    x,
+    y,
+    w: Math.min(v.videoWidth - x, r.w * (1 + 2 * PAD)),
+    h: Math.min(v.videoHeight - y, r.h * (1 + 2 * PAD)),
+  };
+};
+// Reads a small grayscale copy of the frame around the guide and scores it:
+// brightness, contrast, sharpness (variance of the Laplacian) and how many of
+// the guide's four sides have a straight edge (the card's border) close to them.
 function measure(v: HTMLVideoElement, r: Rect, canvas: HTMLCanvasElement) {
   const w = 240;
-  const h = Math.max(1, Math.round((w * r.h) / r.w));
+  const h = Math.max(8, Math.round((w * r.h) / r.w));
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
   ctx.drawImage(v, r.x, r.y, r.w, r.h, 0, 0, w, h);
   const px = ctx.getImageData(0, 0, w, h).data;
   const gray = new Float32Array(w * h);
-  let sum = 0;
-  for (let i = 0; i < w * h; i++) {
+  for (let i = 0; i < w * h; i++)
     gray[i] = px[i * 4] * 0.299 + px[i * 4 + 1] * 0.587 + px[i * 4 + 2] * 0.114;
-    sum += gray[i];
-  }
-  const mean = sum / (w * h);
-  let variance = 0;
+  const mx = Math.round((w * PAD) / (1 + 2 * PAD));
+  const my = Math.round((h * PAD) / (1 + 2 * PAD));
+  let sum = 0;
+  let sq = 0;
   let lapSum = 0;
   let lapSq = 0;
   let n = 0;
-  for (let y = 1; y < h - 1; y++)
-    for (let x = 1; x < w - 1; x++) {
+  for (let y = my + 1; y < h - my - 1; y++)
+    for (let x = mx + 1; x < w - mx - 1; x++) {
       const i = y * w + x;
       const lap =
         4 * gray[i] - gray[i - 1] - gray[i + 1] - gray[i - w] - gray[i + w];
+      sum += gray[i];
+      sq += gray[i] * gray[i];
       lapSum += lap;
       lapSq += lap * lap;
       n++;
     }
-  for (let i = 0; i < w * h; i++) variance += (gray[i] - mean) ** 2;
+  const mean = sum / n;
+  // Edge profile across one side band: mean gradient of each line, then how much
+  // the strongest line stands out from the band (a straight border makes a spike).
+  // For one side of the guide, find the line with the strongest edge and check
+  // that the edge runs continuously along most of that side, as a card border does.
+  const side = (horizontal: boolean, from: number, to: number) => {
+    const [len, other] = horizontal ? [w, h] : [h, w];
+    const a = Math.round(len * 0.15);
+    const b = Math.round(len * 0.85);
+    const grad = (k: number, t: number) =>
+      horizontal
+        ? Math.abs(gray[(k + 1) * w + t] - gray[(k - 1) * w + t])
+        : Math.abs(gray[t * w + k + 1] - gray[t * w + k - 1]);
+    let best = 0;
+    for (let k = Math.max(2, from); k < Math.min(other - 2, to); k++) {
+      let covered = 0;
+      for (let t = a; t < b; t++)
+        if (Math.max(grad(k - 1, t), grad(k, t), grad(k + 1, t)) > 16)
+          covered++;
+      best = Math.max(best, covered / (b - a));
+    }
+    return Math.round(best * 100) / 100;
+  };
+  const band = (size: number, margin: number) => [
+    0,
+    margin * 2 + Math.round(size * 0.08),
+  ];
+  const [t0, t1] = band(h, my);
+  const [l0, l1] = band(w, mx);
+  const sides = [
+    side(true, t0, t1),
+    side(true, h - t1, h - t0),
+    side(false, l0, l1),
+    side(false, w - l1, w - l0),
+  ];
+  const edges = sides.filter((x) => x > 0.7).length;
   return {
     gray,
+    edges,
     brightness: mean,
-    contrast: Math.sqrt(variance / (w * h)),
+    contrast: Math.sqrt(Math.max(0, sq / n - mean * mean)),
     sharpness: lapSq / n - (lapSum / n) ** 2,
   };
 }
@@ -127,60 +183,77 @@ export function DocumentCamera({
     "Place your document inside the frame",
   );
   const [progress, setProgress] = useState(0);
-  const [manual, setManual] = useState(false);
   const done = useRef(false);
   async function take() {
     const v = video.current;
     if (!v || !guide.current || done.current) return;
     done.current = true;
-    const r = toVideoRect(v, guide.current.getBoundingClientRect());
-    const pad = 0.06;
-    const rect = {
-      x: Math.max(0, r.x - r.w * pad),
-      y: Math.max(0, r.y - r.h * pad),
-      w: Math.min(v.videoWidth, r.w * (1 + 2 * pad)),
-      h: Math.min(v.videoHeight, r.h * (1 + 2 * pad)),
-    };
+    const rect = expand(
+      toVideoRect(v, guide.current.getBoundingClientRect()),
+      v,
+    );
     onCapture(await snapshot(v, rect, 1800));
   }
   useEffect(() => {
     if (!ready) return;
     const canvas = document.createElement("canvas");
     let previous: Float32Array | null = null;
-    let peak = 0;
-    let stable = 0;
-    let timer = 0;
+    const recent: number[] = [];
+    let steady = 0;
+    let present = 0;
     const started = Date.now();
     const tick = () => {
       const v = video.current;
       if (!v || !guide.current || done.current || !v.videoWidth) return;
-      if (Date.now() - started > 6000) setManual(true);
       const m = measure(
         v,
-        toVideoRect(v, guide.current.getBoundingClientRect()),
+        expand(toVideoRect(v, guide.current.getBoundingClientRect()), v),
         canvas,
       );
-      let motion = 0;
+      let motion = 99;
       if (previous && previous.length === m.gray.length) {
-        for (let i = 0; i < m.gray.length; i += 4)
+        motion = 0;
+        for (let i = 0; i < m.gray.length; i += 3)
           motion += Math.abs(m.gray[i] - previous[i]);
-        motion /= m.gray.length / 4;
-      } else motion = 99;
+        motion /= m.gray.length / 3;
+      }
       previous = m.gray;
-      peak = Math.max(peak * 0.995, m.sharpness);
+      recent.push(m.sharpness);
+      if (recent.length > 16) recent.shift();
+      const sharp =
+        m.sharpness > 15 && m.sharpness >= Math.max(...recent) * 0.45;
+      const lit = m.brightness > 40 && m.brightness < 235;
+      const card = lit && m.contrast > 14 && m.edges >= 2;
+      const late = Date.now() - started > 10000;
+      present = card && motion < 25 ? present + 1 : 0;
+      steady = card && m.edges >= 3 && motion < 14 && sharp ? steady + 1 : 0;
       let next = "Hold steady…";
-      if (m.brightness < 55) next = "Too dark. Move somewhere brighter";
-      else if (m.brightness > 225) next = "Too bright. Avoid glare on the card";
-      else if (m.contrast < 22) next = "Place your document inside the frame";
-      else if (motion > 6) next = "Hold your phone still";
-      else if (m.sharpness < Math.max(60, peak * 0.6))
-        next = "Hold still while we focus";
-      stable = next === "Hold steady…" ? stable + 1 : 0;
+      if (!lit)
+        next =
+          m.brightness <= 40
+            ? "Too dark. Move somewhere brighter"
+            : "Too bright. Tilt the card to avoid glare";
+      else if (!card)
+        next =
+          Date.now() - started > 5000
+            ? "Line the card edges up with the frame. A darker surface helps"
+            : "Fit your document inside the frame";
+      else if (motion >= 14) next = "Hold still…";
+      else if (!sharp) next = "Focusing…";
       setMessage(next);
-      setProgress(Math.min(1, stable / 8));
-      if (stable >= 8) void take();
+      // Snap after ~0.5 s of a steady, sharp, framed card; or after ~2 s of a card
+      // in the frame even with some hand shake; or, as a last resort after 10 s,
+      // once anything well lit and still is in view.
+      const target = 4;
+      setProgress(Math.min(1, Math.max(steady / target, present / 16)));
+      if (
+        steady >= target ||
+        present >= 16 ||
+        (late && lit && m.contrast > 18 && motion < 10 && sharp)
+      )
+        void take();
     };
-    timer = window.setInterval(tick, 120);
+    const timer = window.setInterval(tick, 120);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
@@ -210,12 +283,10 @@ export function DocumentCamera({
             {error}
           </p>
         ) : (
-          <p role="status">{ready ? message : "Opening camera…"}</p>
-        )}
-        {ready && manual && (
-          <button type="button" className="button secondary" onClick={take}>
-            Take photo manually
-          </button>
+          <p role="status">
+            {ready ? message : "Opening camera…"}
+            {ready && <small>The photo is taken automatically.</small>}
+          </p>
         )}
       </footer>
     </div>
@@ -242,12 +313,10 @@ function loadLandmarker() {
   });
   return landmarker;
 }
-type Stage = "center" | "blink" | "turn" | "back" | "done";
+type Stage = "blink" | "look" | "done";
 const stageText: Record<Stage, string> = {
-  center: "Position your face inside the oval",
   blink: "Blink your eyes",
-  turn: "Slowly turn your head to one side",
-  back: "Now look straight at the camera",
+  look: "Now look at the camera",
   done: "Great, hold still",
 };
 export function SelfieCamera({
@@ -258,7 +327,7 @@ export function SelfieCamera({
   onClose: () => void;
 }) {
   const { video, error, ready } = useCamera("user");
-  const [stage, setStage] = useState<Stage>("center");
+  const [stage, setStage] = useState<Stage>("blink");
   const [hint, setHint] = useState("");
   const [modelError, setModelError] = useState("");
   const done = useRef(false);
@@ -278,9 +347,9 @@ export function SelfieCamera({
     if (!ready) return;
     let stopped = false;
     let frame = 0;
-    let current: Stage = "center";
+    let current: Stage = "blink";
     let closed = false;
-    let centered = 0;
+    let looking = 0;
     let last = -1;
     const go = (s: Stage) => {
       current = s;
@@ -299,21 +368,15 @@ export function SelfieCamera({
               setHint(
                 faces.length
                   ? "Only one person should be in view"
-                  : "We can't see your face",
+                  : "Look at the camera so we can see your face",
               );
-              centered = 0;
+              looking = 0;
             } else {
+              setHint("");
               const p = faces[0];
-              const xs = p.map((l) => l.x);
-              const ys = p.map((l) => l.y);
-              const width = Math.max(...xs) - Math.min(...xs);
-              const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
-              const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
-              const cheekR = p[234];
-              const cheekL = p[454];
               const yaw =
-                (p[1].x - (cheekR.x + cheekL.x) / 2) /
-                Math.abs(cheekL.x - cheekR.x);
+                (p[1].x - (p[234].x + p[454].x) / 2) /
+                Math.abs(p[454].x - p[234].x);
               const shapes = Object.fromEntries(
                 (result.faceBlendshapes[0]?.categories || []).map((c) => [
                   c.categoryName,
@@ -324,30 +387,12 @@ export function SelfieCamera({
                 shapes.eyeBlinkLeft ?? 0,
                 shapes.eyeBlinkRight ?? 0,
               );
-              const inOval =
-                Math.abs(cx - 0.5) < 0.12 && Math.abs(cy - 0.5) < 0.15;
-              const size =
-                width < 0.28
-                  ? "Move closer"
-                  : width > 0.75
-                    ? "Move back a little"
-                    : "";
-              setHint(!inOval ? "Center your face in the oval" : size);
-              const good = inOval && !size;
-              if (current === "center") {
-                centered = good && Math.abs(yaw) < 0.08 ? centered + 1 : 0;
-                if (centered > 8) go("blink");
-              } else if (current === "blink") {
-                if (blink > 0.5) closed = true;
-                else if (closed && blink < 0.25) go("turn");
-              } else if (current === "turn") {
-                if (Math.abs(yaw) > 0.18) go("back");
-              } else if (current === "back") {
-                centered =
-                  good && Math.abs(yaw) < 0.06 && blink < 0.3
-                    ? centered + 1
-                    : 0;
-                if (centered > 5) {
+              if (current === "blink") {
+                if (blink > 0.45) closed = true;
+                else if (closed && blink < 0.3) go("look");
+              } else if (current === "look") {
+                looking = blink < 0.3 && Math.abs(yaw) < 0.2 ? looking + 1 : 0;
+                if (looking >= 3) {
                   go("done");
                   void take();
                   return;
@@ -370,7 +415,7 @@ export function SelfieCamera({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
-  const steps: Stage[] = ["center", "blink", "turn", "back"];
+  const steps: Stage[] = ["blink", "look"];
   return (
     <div className="kyc-camera selfie" role="dialog" aria-label="Take a selfie">
       <video ref={video} playsInline muted />
@@ -382,7 +427,8 @@ export function SelfieCamera({
         <div>
           <strong>Take a selfie</strong>
           <small>
-            Remove glasses or hats. Make sure your face is well lit.
+            Blink once, then look at the camera. The photo is taken
+            automatically.
           </small>
         </div>
       </header>

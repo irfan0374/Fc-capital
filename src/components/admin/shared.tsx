@@ -16,6 +16,7 @@ export function StatusBadge({ status }: { status: string }) {
         "desk-status " +
         ({
           "Pending review": "pending",
+          Pending: "pending",
           "Needs information": "information",
           Approved: "approved",
           Rejected: "rejected",
