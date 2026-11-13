@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ChatWidget } from "@/components/chat/chat-widget";
 export const metadata: Metadata = {
   title: "FC Capital · A clearer perspective",
   description: "FC Capital interactive website and onboarding demo.",
@@ -10,7 +11,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ChatWidget />
+      </body>
     </html>
   );
 }
