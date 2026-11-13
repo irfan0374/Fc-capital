@@ -26,9 +26,9 @@
   place-items: center;
   width: 62px;
   height: 76px;
-  border: 1px solid #315563;
+  border: 1px solid #632436;
   border-radius: 10px;
-  background: linear-gradient(135deg, #173540, #101b29);
+  background: linear-gradient(135deg, #501224, #430d1c);
   font-size: 26px;
   color: var(--cyan);
   transform: rotate(-12deg);
@@ -44,10 +44,10 @@
 }
 .tq-card {
   padding: 34px;
-  border: 1px solid #304453;
+  border: 1px solid #5e1e30;
   border-radius: 18px;
   background:
-    radial-gradient(ellipse at top right, #1d596023, transparent 65%),
+    radial-gradient(ellipse at top right, #5c1c2f23, transparent 65%),
     var(--surface);
   min-height: 520px;
 }
@@ -70,7 +70,7 @@
 .tq-progress span {
   height: 3px;
   flex: 1;
-  background: #293749;
+  background: #59192b;
   border-radius: 3px;
 }
 .tq-progress span.active {
@@ -94,7 +94,7 @@
   text-align: left;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0c1521;
+  background: #2d0c16;
   color: var(--text);
   font-size: 13px;
   line-height: 1.5;
@@ -114,18 +114,18 @@
   place-items: center;
   flex: 0 0 28px;
   height: 28px;
-  border: 1px solid #35485b;
+  border: 1px solid #622234;
   border-radius: 6px;
   font-size: 11px;
   color: var(--muted);
 }
 .tq-option.correct {
-  background: #15392f;
+  background: #4c1021;
   border-color: #62cba1;
 }
 .tq-option.wrong {
   background: #3d202c;
-  border-color: #ec8d9e;
+  border-color: #d0bca9;
 }
 .tq-option[aria-disabled="true"] {
   cursor: default;
@@ -134,10 +134,10 @@
   font-size: 10px;
   margin-left: auto;
   flex-shrink: 0;
-  color: #9de7c5;
+  color: #d4c2b0;
 }
 .tq-option.wrong strong {
-  color: #ffb4be;
+  color: #e5dace;
 }
 .tq-feedback {
   min-height: 44px;

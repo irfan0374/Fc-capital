@@ -15,16 +15,16 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border: 1px solid #2c4152;
+  border: 1px solid #5d1d2f;
   border-radius: 12px;
-  background: #0d1824;
+  background: #350d18;
 }
 .kyc-checklist li.current {
-  border-color: #3b9195;
+  border-color: #b3362d;
 }
 .kyc-checklist li.done {
-  background: linear-gradient(145deg, #153338, #10232b);
-  border-color: #3b9195;
+  background: linear-gradient(145deg, #4c1021, #450c1c);
+  border-color: #b3362d;
 }
 .kyc-checklist strong {
   display: block;
@@ -49,13 +49,13 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  border: 1px solid #3a5568;
+  border: 1px solid #8e2b23;
   color: var(--cyan);
   font-weight: 700;
 }
 li.done .kyc-step-icon {
   background: var(--cyan);
-  color: #06141c;
+  color: #1a0a0e;
   border-color: var(--cyan);
 }
 .kyc-camera {
@@ -63,7 +63,7 @@ li.done .kyc-step-icon {
   inset: 0;
   z-index: 1000;
   background: #000;
-  color: #fff;
+  color: #fff0d5;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -111,7 +111,7 @@ li.done .kyc-step-icon {
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  color: #c9d6e2;
+  color: #fff0d5;
   line-height: 1.5;
 }
 .kyc-camera header button {
@@ -119,14 +119,14 @@ li.done .kyc-step-icon {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1px solid #fff5;
+  border: 1px solid #fff0d555;
   background: #0007;
-  color: #fff;
+  color: #fff0d5;
   font-size: 22px;
   line-height: 1;
 }
 .kyc-camera footer p {
-  color: #fff;
+  color: #fff0d5;
   font-size: 15px;
   font-weight: 600;
   margin: 0 0 12px;
@@ -139,7 +139,7 @@ li.done .kyc-step-icon {
   color: #ffd98a;
 }
 .kyc-camera .kyc-error {
-  color: #ffd3d3;
+  color: #fff0d5;
   font-weight: 400;
   font-size: 13px;
   max-width: 420px;
@@ -158,7 +158,7 @@ li.done .kyc-step-icon {
   width: min(88vw, 640px, calc(58vh * 1.586));
   aspect-ratio: 1.586;
   border-radius: 14px;
-  border: 2px solid #fffc;
+  border: 2px solid #fff0d5cc;
 }
 .kyc-card-guide.passport {
   aspect-ratio: 1.42;
@@ -168,7 +168,7 @@ li.done .kyc-step-icon {
   position: absolute;
   inset: -2px;
   border-radius: 14px;
-  border: 3px solid var(--cyan, #45d6e8);
+  border: 3px solid var(--cyan, #ff493d);
   opacity: var(--progress, 0);
   transition: opacity 0.15s;
 }
@@ -176,7 +176,7 @@ li.done .kyc-step-icon {
   width: min(64vw, 300px, 40vh);
   aspect-ratio: 0.78;
   border-radius: 50%;
-  border: 3px solid #fffc;
+  border: 3px solid #fff0d5cc;
   transition: border-color 0.2s;
 }
 .kyc-face-guide.blink,
@@ -184,7 +184,7 @@ li.done .kyc-step-icon {
   border-color: #ffd98a;
 }
 .kyc-face-guide.done {
-  border-color: var(--cyan, #45d6e8);
+  border-color: var(--cyan, #ff493d);
 }
 .kyc-liveness {
   list-style: none;
@@ -197,16 +197,16 @@ li.done .kyc-step-icon {
   width: 34px;
   height: 4px;
   border-radius: 2px;
-  background: #fff4;
+  background: #fff0d544;
 }
 .kyc-liveness li.active {
   background: #ffd98a;
 }
 .kyc-liveness li.complete {
-  background: var(--cyan, #45d6e8);
+  background: var(--cyan, #ff493d);
 }
 .kyc-review {
-  background: #060b12;
+  background: #0b0506;
 }
 .kyc-review img {
   position: relative;
@@ -231,15 +231,15 @@ li.done .kyc-step-icon {
   gap: 24px;
   align-items: center;
   padding: 22px;
-  border: 1px solid #2c4152;
+  border: 1px solid #5d1d2f;
   border-radius: 12px;
-  background: #0d1824;
+  background: #350d18;
 }
 .kyc-qr img {
   width: 168px;
   height: 168px;
   border-radius: 10px;
-  background: #fff;
+  background: #fff0d5;
   padding: 8px;
 }
 .kyc-qr h3 {
@@ -264,13 +264,13 @@ li.done .kyc-step-icon {
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border: 1px dashed #40586c;
+  border: 1px dashed #962d25;
   border-radius: 12px;
-  background: #0d1824;
+  background: #350d18;
 }
 .kyc-file.done {
   border-style: solid;
-  border-color: #3b9195;
+  border-color: #b3362d;
 }
 .kyc-file strong {
   display: block;
