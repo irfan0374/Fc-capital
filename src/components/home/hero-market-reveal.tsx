@@ -67,7 +67,7 @@ export function HeroMarketReveal() {
                 <path
                   d="M50 0H0V50"
                   fill="none"
-                  stroke="#ff493d"
+                  stroke="#6b1a2b"
                   strokeOpacity=".15"
                 />
               </pattern>
@@ -76,7 +76,7 @@ export function HeroMarketReveal() {
             <path
               d="M0 420 Q150 360 250 395 T500 340 T750 280 T1000 230 T1200 170"
               fill="none"
-              stroke="#e5dace"
+              stroke="#6b1a2b"
               strokeWidth="1.5"
               opacity=".5"
             />
@@ -85,8 +85,8 @@ export function HeroMarketReveal() {
                 key={index}
                 className="hero-chart-candle"
                 style={{ animationDelay: `${index * -0.17}s` }}
-                fill={candle.up ? "#fff0d5" : "#ff493d"}
-                stroke={candle.up ? "#fff0d5" : "#ff493d"}
+                fill={candle.up ? "#6b1a2b" : "#c9a58f"}
+                stroke={candle.up ? "#6b1a2b" : "#c9a58f"}
               >
                 <path
                   d={`M${candle.x} ${candle.y - 14}V${candle.y + candle.height + 17}`}
@@ -139,7 +139,7 @@ export function HeroMarketReveal() {
               <path
                 key={y}
                 d={`M0 ${y}H1200`}
-                stroke="#5b1b2d"
+                stroke="#e7d7c0"
                 strokeWidth="2"
                 strokeDasharray="4 12"
               />
@@ -149,8 +149,8 @@ export function HeroMarketReveal() {
                 key={i}
                 className="hero-chart-candle"
                 style={{ animationDelay: `${i * -0.17}s` }}
-                fill={c.up ? "#fff0d5" : "#ff493d"}
-                stroke={c.up ? "#fff0d5" : "#ff493d"}
+                fill={c.up ? "#6b1a2b" : "#c9a58f"}
+                stroke={c.up ? "#6b1a2b" : "#c9a58f"}
               >
                 <path
                   d={`M${c.x} ${c.y - 14}V${c.y + c.height + 17}`}
@@ -169,7 +169,7 @@ export function HeroMarketReveal() {
             <path
               d="M0 420 Q150 360 250 395 T500 340 T750 280 T1000 230 T1200 170"
               fill="none"
-              stroke="#e5dace"
+              stroke="#6b1a2b"
               strokeWidth="3"
               opacity=".6"
             />

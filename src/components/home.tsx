@@ -4,7 +4,7 @@ import { instruments } from "@/lib/home-content";
 import { HeroMarketReveal } from "./home/hero-market-reveal";
 import { TradingQuiz } from "./home/trading-quiz";
 import { AccountCard } from "./home/account-card";
-import Image from "next/image";
+import { GoldDemo } from "./home/gold-demo";
 import { useCallback, useRef, useState } from "react";
 import MarketIntro from "./market-intro";
 import { useHomeMotion } from "./home-motion";
@@ -345,71 +345,34 @@ export default function Home() {
       </section>
       <section id="platforms" className="section container platform-section">
         <div className="platform-copy">
-          <p className="eyebrow">YOUR MARKETS. YOUR SPACE.</p>
+          <p className="eyebrow">TRY IT YOURSELF</p>
           <h2>
-            A familiar platform.
+            Trade gold.
             <br />
-            <span>A new perspective.</span>
+            <span>Right here, right now.</span>
           </h2>
           <p>
-            Explore MetaTrader 5 across desktop and mobile. Charts, market
-            analysis and your trading workspace, brought together.
+            FC Capital accounts trade on MetaTrader 5, the familiar platform
+            used by traders worldwide, on desktop and mobile.
+          </p>
+          <p>
+            Try it now: place a practice trade on XAUUSD in our MT5-style demo.
+            Tap Buy or Sell, watch your profit and loss move, and close
+            whenever you like. No sign-up, no real money.
           </p>
           <div className="platform-tags">
-            <span>Desktop</span>
-            <span>Mobile</span>
             <span>MetaTrader 5</span>
+            <span>One-click trading</span>
+            <span>Live chart</span>
+            <span>Practice funds</span>
           </div>
-          <button
-            className="button secondary"
-            onClick={() => setModal("MetaTrader 5")}
-          >
-            Discover the platform <Arrow />
-          </button>
+          <Link href="/register" className="button primary">
+            Open your account <Arrow />
+          </Link>
         </div>
         <div className="platform-images">
           <div className="platform-ambient" aria-hidden="true" />
-          <figure className="desktop-device">
-            <figcaption>
-              <span>01 / DESKTOP</span>
-              <span>THE BIGGER PICTURE ↗</span>
-            </figcaption>
-            <Image
-              src="/images/mt5-desktop.jpg"
-              alt="Illustrative MetaTrader 5 desktop trading workspace"
-              width={2400}
-              height={1340}
-              sizes="(max-width: 800px) 90vw, 50vw"
-              className="desktop-photo"
-            />
-          </figure>
-          <div className="mobile-device-row">
-            <div className="device-caption">
-              <span className="eyebrow">02 / MOBILE</span>
-              <h3>
-                A change
-                <br />
-                of scenery.
-              </h3>
-              <p>
-                Your perspective.
-                <br />
-                Wherever you are.
-              </p>
-              <span className="device-line" aria-hidden="true" />
-            </div>
-            <figure className="mobile-device">
-              <Image
-                src="/images/mt5-mobile.jpg"
-                alt="Illustrative MetaTrader 5 mobile trading screen"
-                width={1792}
-                height={2400}
-                sizes="(max-width: 800px) 45vw, 20vw"
-                className="mobile-photo"
-              />
-            </figure>
-          </div>
-          <small>Illustrative imagery. Interface details may differ.</small>
+          <GoldDemo />
         </div>
       </section>
       <section id="learn" className="section container learning-section">

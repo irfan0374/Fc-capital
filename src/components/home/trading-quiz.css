@@ -26,13 +26,13 @@
   place-items: center;
   width: 62px;
   height: 76px;
-  border: 1px solid #632436;
+  border: 1px solid #e3d0b4;
   border-radius: 10px;
-  background: linear-gradient(135deg, #501224, #430d1c);
+  background: linear-gradient(135deg, #ede1cf, #fffaf1);
   font-size: 26px;
   color: var(--cyan);
   transform: rotate(-12deg);
-  box-shadow: 0 8px 20px #0003;
+  box-shadow: 0 8px 20px #3a0f1a11;
 }
 .tq-decoration span:nth-child(2) {
   transform: translateY(-8px) rotate(3deg);
@@ -44,10 +44,10 @@
 }
 .tq-card {
   padding: 34px;
-  border: 1px solid #5e1e30;
+  border: 1px solid #e5d5bc;
   border-radius: 18px;
   background:
-    radial-gradient(ellipse at top right, #5c1c2f23, transparent 65%),
+    radial-gradient(ellipse at top right, #e6d6be23, transparent 65%),
     var(--surface);
   min-height: 520px;
 }
@@ -70,7 +70,7 @@
 .tq-progress span {
   height: 3px;
   flex: 1;
-  background: #59192b;
+  background: #e8d9c3;
   border-radius: 3px;
 }
 .tq-progress span.active {
@@ -94,7 +94,7 @@
   text-align: left;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #2d0c16;
+  background: #fef4e3;
   color: var(--text);
   font-size: 13px;
   line-height: 1.5;
@@ -114,18 +114,18 @@
   place-items: center;
   flex: 0 0 28px;
   height: 28px;
-  border: 1px solid #622234;
+  border: 1px solid #e3d1b6;
   border-radius: 6px;
   font-size: 11px;
   color: var(--muted);
 }
 .tq-option.correct {
-  background: #4c1021;
-  border-color: #62cba1;
+  background: #fef9f0;
+  border-color: #349d73;
 }
 .tq-option.wrong {
-  background: #3d202c;
-  border-color: #d0bca9;
+  background: #dfc2ce;
+  border-color: #721d2c;
 }
 .tq-option[aria-disabled="true"] {
   cursor: default;
@@ -134,10 +134,10 @@
   font-size: 10px;
   margin-left: auto;
   flex-shrink: 0;
-  color: #d4c2b0;
+  color: #1d724b;
 }
 .tq-option.wrong strong {
-  color: #e5dace;
+  color: #721d28;
 }
 .tq-feedback {
   min-height: 44px;

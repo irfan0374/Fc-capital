@@ -41,36 +41,6 @@ export function useHomeMotion(
             clearProps: "all",
           });
           {
-            gsap.fromTo(
-              ".desktop-photo",
-              { y: desktop ? 22 : 14, rotation: 0 },
-              {
-                y: desktop ? -15 : -12,
-                rotation: 0,
-                ease: "none",
-                scrollTrigger: {
-                  trigger: ".platform-section",
-                  start: "top bottom",
-                  end: "bottom top",
-                  scrub: 0.6,
-                },
-              },
-            );
-            gsap.fromTo(
-              ".mobile-photo",
-              { y: desktop ? 40 : 24, rotation: desktop ? 2 : 0 },
-              {
-                y: desktop ? -30 : -18,
-                rotation: desktop ? -2 : 0,
-                ease: "none",
-                scrollTrigger: {
-                  trigger: ".platform-section",
-                  start: "top bottom",
-                  end: "bottom top",
-                  scrub: 0.7,
-                },
-              },
-            );
             const stack = scope(".learn-grid")[0] as HTMLElement;
             stack.classList.add("motion-stack");
             scope(".learn-card").forEach((card: HTMLElement, index: number) => {
